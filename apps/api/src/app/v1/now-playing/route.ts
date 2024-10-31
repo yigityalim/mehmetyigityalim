@@ -45,7 +45,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   // Validate the request authorization
   const unauthorizedResponse = validateAuthorization(request);
   if (unauthorizedResponse) {
-    //return unauthorizedResponse;
+    return unauthorizedResponse;
   }
 
   try {
