@@ -88,7 +88,7 @@ Yardıma ihtiyacınız varsa veya bir sorunuz varsa, [SUPPORT.md](./SUPPORT.md) 
 
 ## 📄 Lisans
 
-Bu proje [GNU AFFERO GENERAL PUBLIC Lisansı](./LICENSE) altında lisanslanmıştır. Detaylar için lisans dosyasını inceleyiniz.
+Bu proje [GNU AFFERO GENERAL PUBLIC Lisansı](./LICENSE.md) altında lisanslanmıştır. Detaylar için lisans dosyasını inceleyiniz.
 
 ## 🙏 Teşekkürler
 
