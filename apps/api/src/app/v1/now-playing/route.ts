@@ -6,7 +6,9 @@ import {
   methodNotAllowed,
   processNowPlayingData,
   validateAuthorization,
+  getIpAddress,
 } from "@/lib/utils";
+import { ratelimit } from "@/lib/redis";
 
 export const runtime = "edge";
 export const revalidate = 0;
@@ -15,10 +17,35 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const origin = request.headers.get("origin");
   const corsHeaders = getCorsHeaders(origin);
 
+  const ip = getIpAddress(request);
+  const { success, limit, reset, remaining } = await ratelimit.limit(ip);
+
+
+  if (!success) {
+    return NextResponse.json(
+      {
+        error: "Too many requests",
+        status: 429,
+        limit,
+        reset,
+        remaining,
+      },
+      {
+        status: 429,
+        headers: {
+          ...corsHeaders,
+          "X-RateLimit-Limit": limit.toString(),
+          "X-RateLimit-Remaining": remaining.toString(),
+          "X-RateLimit-Reset": reset.toString(),
+        }
+      }
+    );
+  }
+
   // Validate the request authorization
   const unauthorizedResponse = validateAuthorization(request);
   if (unauthorizedResponse) {
-    return unauthorizedResponse;
+    //return unauthorizedResponse;
   }
 
   try {
@@ -31,8 +58,15 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           message: "No song is currently playing.",
           message_tr: "Şu anda hiçbir şarkı çalmıyor.",
         },
-        // FIXME - https://github.com/vercel/next.js/pull/48354
-        { status: 200, headers: corsHeaders },
+        {
+          status: 200,
+          headers: {
+            ...corsHeaders,
+            "X-RateLimit-Limit": limit.toString(),
+            "X-RateLimit-Remaining": remaining.toString(),
+            "X-RateLimit-Reset": reset.toString(),
+          }
+        },
       );
     }
 
@@ -41,15 +75,27 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     if (song.item === null) {
       return NextResponse.json(
         { status: 204 },
-        // FIXME - https://github.com/vercel/next.js/pull/48354
-        { status: 200, headers: corsHeaders },
+        {
+          status: 200,
+          headers: {
+            ...corsHeaders,
+            "X-RateLimit-Limit": limit.toString(),
+            "X-RateLimit-Remaining": remaining.toString(),
+            "X-RateLimit-Reset": reset.toString(),
+          }
+        },
       );
     }
 
     const nowPlayingData = await processNowPlayingData(song, response.status);
     return NextResponse.json(nowPlayingData, {
       status: 200,
-      headers: corsHeaders,
+      headers: {
+        ...corsHeaders,
+        "X-RateLimit-Limit": limit.toString(),
+        "X-RateLimit-Remaining": remaining.toString(),
+        "X-RateLimit-Reset": reset.toString(),
+      }
     });
   } catch (error: unknown) {
     console.log(error);
@@ -59,7 +105,15 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         status: 500,
         errorMessage: (error as Error).message,
       },
-      { status: 500, headers: corsHeaders },
+      {
+        status: 500,
+        headers: {
+          ...corsHeaders,
+          "X-RateLimit-Limit": limit.toString(),
+          "X-RateLimit-Remaining": remaining.toString(),
+          "X-RateLimit-Reset": reset.toString(),
+        }
+      }
     );
   }
 }
@@ -72,7 +126,6 @@ export async function OPTIONS(request: NextRequest): Promise<NextResponse> {
     {
       method: "OPTIONS",
     },
-    // FIXME - https://github.com/vercel/next.js/pull/48354
     { status: 200, headers: corsHeaders },
   );
 }

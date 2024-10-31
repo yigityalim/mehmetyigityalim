@@ -10,7 +10,7 @@
 	},
 	"dependencies": {
 		"@myy/ui": "workspace:*",
-		"next": "15.0.0-rc.1",
+		"next": "15.0.2",
 		"react": "19.0.0-rc-cd22717c-20241013",
 		"react-dom": "19.0.0-rc-cd22717c-20241013"
 	},

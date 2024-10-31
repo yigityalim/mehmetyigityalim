@@ -115,3 +115,27 @@ export function methodNotAllowed(): NextResponse<{
     { status: 405, headers: { Allow: "GET, OPTIONS" } },
   );
 }
+
+export function getIpAddress(request: NextRequest): string {
+  const forwardedFor = request.headers.get('x-forwarded-for');
+  if (forwardedFor) {
+    return forwardedFor.split(',')[0].trim();
+  }
+
+  const cfIp = request.headers.get('cf-connecting-ip');
+  if (cfIp) {
+    return cfIp;
+  }
+
+  const trueClientIp = request.headers.get('true-client-ip');
+  if (trueClientIp) {
+    return trueClientIp;
+  }
+
+  const remoteAddr = request.headers.get('x-real-ip');
+  if (remoteAddr) {
+    return remoteAddr;
+  }
+
+  return '127.0.0.1';
+}
