@@ -1,0 +1,38 @@
+{
+	"name": "mehmetyigityalim",
+	"private": true,
+	"engines": {
+		"node": ">=20.16.0"
+	},
+	"packageManager": "pnpm@9.12.0",
+	"scripts": {
+		"build": "turbo run build",
+		"clean": "git clean -xdf node_modules",
+		"clean:workspaces": "turbo run clean",
+		"db:push": "turbo -F @myy/db push",
+		"db:studio": "turbo -F @myy/db studio",
+		"lint:ws": "pnpm dlx sherif@latest",
+		"lint:ws:fix": "pnpm dlx sherif@latest --fix",
+		"postinstall": "pnpm lint:ws",
+		"typecheck": "turbo run typecheck",
+		"ui-add": "turbo run ui-add",
+		"dev": "turbo dev",
+		"dev:api": "turbo dev --filter=@myy/api",
+		"dev:www": "turbo dev --filter=@myy/website",
+		"dev:app": "turbo dev --filter=@myy/app",
+		"dev:status": "turbo dev --filter=@myy/status",
+		"build:api": "turbo build --filter=@myy/api",
+		"build:www": "turbo build --filter=@myy/website",
+		"build:app": "turbo build --filter=@myy/app",
+		"build:status": "turbo build --filter=@myy/status",
+		"start:api": "turbo start --filter=@myy/website",
+		"start:www": "turbo start --filter=@myy/www",
+		"start:app": "turbo start --filter=@myy/app",
+		"start:status": "turbo start --filter=@myy/status"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "catalog:",
+		"turbo": "^2.2.3",
+		"typescript": "catalog:"
+	}
+}

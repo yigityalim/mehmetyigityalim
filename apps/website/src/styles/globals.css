@@ -1,0 +1,99 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --sh-class: #ffffff;
+  --sh-identifier: #ffffff;
+  --sh-sign: #8996a3;
+  --sh-string: #a7a7a7;
+  --sh-keyword: #a7a7a7;
+  --sh-comment: #a19595;
+  --sh-jsxliterals: #ffffff;
+  --sh-property: #a7a7a7;
+  --sh-entity: #a7a7a7;
+}
+
+pre::-webkit-scrollbar {
+  display: none;
+}
+
+pre {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+  padding: 20px;
+  border: 1px solid;
+  border-color: hsl(var(--border));
+  border-radius: 10px;
+  margin: 20px 0 !important;
+  background-color: #0c0c0c;
+  overflow: auto;
+}
+
+pre code {
+  font-size: 13px;
+  font-weight: 500 !important;
+}
+
+.dotted-bg {
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    #232323 1px,
+    transparent 0
+  );
+  background-size: 8px 8px;
+}
+
+.hero-slide-up {
+  animation: hero-animation 1s ease-in-out;
+}
+
+@keyframes hero-animation {
+  0% {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.text-stroke {
+  color: white;
+  text-shadow:
+    -1px 1px 0 black,
+    1px 1px 0 black,
+    1px -1px 0 black,
+    -1px -1px 0 black;
+}
+
+.dark .text-stroke {
+  color: black;
+  text-shadow:
+    -1px 1px 0 white,
+    1px 1px 0 white,
+    1px -1px 0 white,
+    -1px -1px 0 white;
+}
+
+.text-dotted {
+  background-image: radial-gradient(
+    circle at 0.4px 0.2px,
+    #fff 1px,
+    transparent 0
+  );
+  background-size: 5px 5px;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+::selection {
+  background: #00cc9937;
+  color: #007763fd;
+}
+
+img::selection {
+  background: transparent;
+}

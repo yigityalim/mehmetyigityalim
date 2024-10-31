@@ -1,0 +1,44 @@
+{
+	"$schema": "https://turborepo.org/schema.json",
+	"globalDependencies": ["**/.env"],
+	"ui": "tui",
+	"tasks": {
+		"topo": {
+			"dependsOn": ["^topo"]
+		},
+		"build": {
+			"env": [],
+			"inputs": ["$TURBO_DEFAULT$", ".env"],
+			"dependsOn": ["^build"],
+			"outputs": [".next/**", "!.next/cache/**", "next-env.d.ts", ".expo/**"]
+		},
+		"start": {
+			"cache": false
+		},
+		"test": {
+			"cache": false
+		},
+		"dev": {
+			"inputs": ["$TURBO_DEFAULT$", ".env"],
+			"persistent": true,
+			"cache": false
+		},
+		"dev:www": {
+			"inputs": ["$TURBO_DEFAULT$", ".env"],
+			"persistent": true,
+			"cache": false
+		},
+		"jobs": {
+			"persistent": true,
+			"cache": false
+		},
+		"format": {},
+		"lint": {
+			"dependsOn": ["^topo"]
+		},
+		"typecheck": {
+			"dependsOn": ["^topo"],
+			"outputs": ["node_modules/.cache/tsbuildinfo.json"]
+		}
+	}
+}
