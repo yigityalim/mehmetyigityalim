@@ -86,7 +86,6 @@ Bu projeye katkıda bulunabileceğiniz alanlar aşağıdaki gibidir:
         └── react-library.json
 ```
 
-```markdown
 | Yol                                     | Açıklama                                                  |
 | --------------------------------------- | --------------------------------------------------------- |
 | `apps/app/*`                            | Ana uygulama dosyaları ve dizinleri                       |
@@ -111,7 +110,6 @@ Bu projeye katkıda bulunabileceğiniz alanlar aşağıdaki gibidir:
 | `tooling/typescript/package.json`       | TypeScript araçları için paket yapılandırması             |
 | `tooling/typescript/react-library.json` | React kütüphaneleri için TypeScript yapılandırması        |
 | `*`                                     | CONTRIBUTING sayfasına eklenmemiş kısımlar                |
-```
 
 ## Dokümantasyon
 
