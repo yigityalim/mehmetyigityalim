@@ -7,7 +7,7 @@
 	},
 	"files": {
 		"ignoreUnknown": false,
-		"ignore": []
+		"ignore": ["*.md"]
 	},
 	"formatter": {
 		"enabled": true,
@@ -17,7 +17,7 @@
 		"enabled": true
 	},
 	"linter": {
-		"ignore": [".wrangler", "node_modules"],
+		"ignore": [".wrangler", "node_modules", ".md"],
 		"enabled": true,
 		"rules": {
 			"recommended": true,
