@@ -1,5 +1,32 @@
 {
-  "name": "status",
-  "version": "0.0.0",
-  "private": true
+	"name": "@myy/status",
+	"version": "0.1.0",
+	"private": true,
+	"scripts": {
+		"dev": "next dev --turbopack",
+		"build": "next build",
+		"start": "next start",
+		"lint": "next lint",
+		"clean": "rm -rf .next && rm -rf node_modules && rm -rf package-lock.json"
+	},
+	"dependencies": {
+		"@myy/ui": "workspace:*",
+		"date-fns": "^4.1.0",
+		"framer-motion": "^11.11.11",
+		"lucide-react": "^0.447.0",
+		"next": "15.0.2",
+		"react": "19.0.0-rc-cd22717c-20241013",
+		"react-dom": "19.0.0-rc-cd22717c-20241013",
+		"zod": "^3.23.8",
+		"zustand": "^5.0.1"
+	},
+	"devDependencies": {
+		"@myy/tsconfig": "workspace:*",
+		"@types/node": "^20.17.5",
+		"@types/react": "^18.3.12",
+		"@types/react-dom": "^18.3.1",
+		"postcss": "^8.4.47",
+		"tailwindcss": "3.4.14",
+		"typescript": "^5.6.3"
+	}
 }
