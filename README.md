@@ -64,6 +64,10 @@ Projeyi yerel ortamınızda çalıştırmak için:
 
 Daha detaylı kurulum talimatları için [CONTRIBUTING.md](./CONTRIBUTING.md) dosyasını inceleyiniz.
 
+## 🚫 Davranış Kuralları
+
+Bu projede katkıda bulunurken, lütfen [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md) dosyasında belirtilen davranış kurallarına uyunuz.
+
 ## 📘 Dokümantasyon
 
 - [API Referansı](./docs/api-reference.md)
