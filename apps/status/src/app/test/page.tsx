@@ -1,5 +1,5 @@
 import { db, incident } from "@/server/db";
-import { incidentService } from "@/server/servies/incident";
+import { incidentService } from "@/server/services/incident";
 
 export default async function Page() {
 	const allIncidents = await incidentService.listIncidents();
