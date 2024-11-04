@@ -6,8 +6,11 @@ import {
 	type IncidentEventInsert,
 	type IncidentSelect,
 	type IncidentEventSelect,
+	type IncidentSiteSelect,
+	type IncidentSiteInsert,
+	sites,
 } from "../schema";
-import { eq, desc, or, like, sql } from "drizzle-orm";
+import { eq, desc, or, like, sql, and, gte } from "drizzle-orm";
 import crypto from "node:crypto";
 
 interface IncidentWithEvents extends Omit<IncidentInsert, "id"> {
@@ -53,6 +56,7 @@ export class IncidentService {
 				.values({
 					title: data.title,
 					status: data.status,
+					site_id: data.site_id,
 					type: data.type,
 					priority: data.priority,
 					assignee: data.assignee,
@@ -166,9 +170,8 @@ export class IncidentService {
 			.from(incident)
 			.limit(pageSize)
 			.offset(offset)
-			.orderBy(desc(incident.created_at));
-
-		console.log(incidents);
+			.orderBy(desc(incident.created_at))
+			.innerJoin(incident_event, eq(incident.id, incident_event.incident_id));
 
 		if (!incidents) return null;
 
@@ -214,7 +217,7 @@ export class IncidentService {
 	}
 
 	async filterIncidentsByStatus(
-		status: IncidentInsert["status"],
+		status: NonNullable<IncidentInsert["status"]>,
 	): Promise<IncidentSelect[]> {
 		return await db
 			.select()
@@ -286,6 +289,54 @@ export class IncidentService {
 			.where(eq(incident_event.id, id));
 
 		return !!result.lastInsertRowid;
+	}
+
+	async getSites() {
+		return await db.select().from(sites);
+	}
+
+	async getSiteById(id: number) {
+		return await db.select().from(sites).where(eq(sites.id, id)).limit(1);
+	}
+
+	async createSite(data: Omit<IncidentSiteInsert, "id">) {
+		const [insertedSite] = await db
+			.insert(sites)
+			.values({
+				...data,
+				created_at: new Date(),
+				updated_at: new Date(),
+			})
+			.returning();
+
+		return insertedSite;
+	}
+
+	async updateSite(
+		id: number,
+		data: Partial<IncidentSiteInsert>,
+	): Promise<IncidentSiteSelect | null> {
+		const [updatedSite] = await db
+			.update(sites)
+			.set({ ...data, updated_at: new Date() })
+			.where(eq(sites.id, id))
+			.returning();
+
+		return updatedSite || null;
+	}
+
+	async deleteSite(id: number): Promise<boolean> {
+		const result = await db.delete(sites).where(eq(sites.id, id));
+
+		return !!result.lastInsertRowid;
+	}
+
+	async getSiteIncidents(siteId: number) {
+		return await db
+			.select()
+			.from(incident)
+			.where(eq(incident.site_id, siteId))
+			.orderBy(desc(incident.created_at));
 	}
 }
 

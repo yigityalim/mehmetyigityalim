@@ -2,12 +2,12 @@
 
 import React from "react";
 import { cn } from "@myy/ui/cn";
-import type { DateTime, Incident as IncidentType } from "@/mocks/incident";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "@myy/ui/button";
+import type { IncidentSelect } from "@/server/schema";
 
 const translate = {
 	created: "Oluşturuldu",
@@ -22,7 +22,7 @@ export function Incident({
 	className,
 	isOpen,
 }: Readonly<{
-	incident: IncidentType;
+	incident: IncidentSelect;
 	className?: string;
 	isOpen?: boolean;
 }>) {

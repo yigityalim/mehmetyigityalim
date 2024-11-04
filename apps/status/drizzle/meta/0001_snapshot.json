@@ -1,8 +1,8 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "520b6302-07ed-4261-af3a-9d524f455f6b",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "e3fd96d4-4eae-49a1-aeb3-bdf0196b6c74",
+  "prevId": "520b6302-07ed-4261-af3a-9d524f455f6b",
   "tables": {
     "incident": {
       "name": "incident",
@@ -47,14 +47,14 @@
           "name": "created_at",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "updated_at": {
           "name": "updated_at",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "type": {
