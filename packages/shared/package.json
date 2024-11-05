@@ -1,6 +1,6 @@
 {
 	"name": "@myy/shared",
-	"version": "1.0.0",
+	"version": "0.1.0",
 	"private": true,
 	"sideEffects": false,
 	"scripts": {
@@ -13,13 +13,15 @@
 		"./form": "./src/form.ts",
 		"./icons": "./src/icons.ts",
 		"./date": "./src/date.ts",
-		"./hooks": "./src/hooks.ts"
+		"./hooks": "./src/hooks.ts",
+		".": "./src/index.ts"
 	},
 	"dependencies": {
 		"@hookform/resolvers": "^3.9.1",
 		"@myy/tsconfig": "workspace:^",
 		"date-fns": "^4.1.0",
 		"lucide-react": "^0.447.0",
+		"nuqs": "2.1.1",
 		"react-hook-form": "^7.53.1"
 	}
 }

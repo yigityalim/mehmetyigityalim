@@ -10,7 +10,18 @@ import {
 	type IncidentSiteInsert,
 	sites,
 } from "../schema";
-import { eq, desc, or, like, sql, and, gte } from "drizzle-orm";
+import {
+	eq,
+	desc,
+	or,
+	like,
+	sql,
+	and,
+	gte,
+	lte,
+	inArray,
+	asc,
+} from "drizzle-orm";
 import crypto from "node:crypto";
 
 interface IncidentWithEvents extends Omit<IncidentInsert, "id"> {
@@ -61,8 +72,8 @@ export class IncidentService {
 					priority: data.priority,
 					assignee: data.assignee,
 					tags: data.tags,
-					created_at: new Date(),
-					updated_at: new Date(),
+					created_at: data.created_at ?? new Date(),
+					updated_at: data.updated_at ?? new Date(),
 				})
 				.returning();
 
@@ -79,8 +90,8 @@ export class IncidentService {
 						incident_id: insertedIncident.id,
 						hash: crypto.createHash("sha256").update(event.title).digest("hex"),
 						...event,
-						created_at: new Date(),
-						updated_at: new Date(),
+						created_at: event.created_at ?? new Date(),
+						updated_at: event.updated_at ?? new Date(),
 					})
 					.returning();
 
@@ -139,7 +150,10 @@ export class IncidentService {
 	async addEventsToIncident(
 		incidentId: number,
 		events: Array<Omit<IncidentEventInsert, "id" | "incident_id" | "hash">>,
-	): Promise<IncidentEventSelect[]> {
+	): Promise<
+		| IncidentEventSelect[]
+		| { incidentId: number; events: IncidentEventSelect[] }
+	> {
 		return await db.transaction(async (tx) => {
 			const insertedEvents: IncidentEventSelect[] = [];
 
@@ -150,34 +164,57 @@ export class IncidentService {
 						incident_id: incidentId,
 						hash: crypto.createHash("sha256").update(event.title).digest("hex"),
 						...event,
-						created_at: new Date(),
-						updated_at: new Date(),
+						created_at: event.created_at ?? new Date(),
+						updated_at: event.updated_at ?? new Date(),
 					})
 					.returning();
 
 				insertedEvents.push(insertedEvent as IncidentEventSelect);
 			}
 
-			return insertedEvents;
+			const lastInsertedEvent = insertedEvents[insertedEvents.length - 1];
+
+			if (!lastInsertedEvent) {
+				return insertedEvents;
+			}
+
+			await tx
+				.update(incident)
+				.set({
+					status: lastInsertedEvent.status,
+					updated_at: new Date(),
+				})
+				.where(eq(incident.id, incidentId));
+
+			return {
+				incidentId,
+				events: insertedEvents,
+			};
 		});
 	}
 
-	async listIncidents(page = 1, pageSize = 10) {
-		const offset = (page - 1) * pageSize;
-
-		const incidents = await db
-			.select()
-			.from(incident)
-			.limit(pageSize)
-			.offset(offset)
-			.orderBy(desc(incident.created_at))
-			.innerJoin(incident_event, eq(incident.id, incident_event.incident_id));
-
-		if (!incidents) return null;
-
-		const count = await db.$count(incident);
-
-		return { incidents, total: Number(count) };
+	async listIncidents({
+		from,
+		to,
+	}: {
+		from?: Date;
+		to?: Date;
+	}) {
+		return db.query.incident.findMany({
+			with: {
+				events: {
+					orderBy: (incident_event, { desc }) => [
+						desc(incident_event.created_at),
+					],
+				},
+				site: true,
+			},
+			where: and(
+				from ? gte(incident.created_at, from) : undefined,
+				to ? lte(incident.created_at, to) : undefined,
+			),
+			orderBy: [desc(incident.created_at)],
+		});
 	}
 
 	async searchIncidents(query: string): Promise<IncidentSelect[]> {
@@ -260,6 +297,27 @@ export class IncidentService {
 			.orderBy(desc(incident.created_at));
 	}
 
+	async getLastIncident() {
+		return await db.query.incident.findMany({
+			orderBy: [desc(incident.created_at)],
+			limit: 1,
+		});
+	}
+
+	async getLastIncidentsWithEvents() {
+		return await db.query.incident.findMany({
+			with: {
+				events: {
+					orderBy: (incident_event, { desc }) => [
+						desc(incident_event.created_at),
+					],
+				},
+			},
+			orderBy: [desc(incident.created_at)],
+			limit: 5,
+		});
+	}
+
 	async getEventsForIncident(
 		incidentId: number,
 	): Promise<IncidentEventSelect[]> {
@@ -291,8 +349,36 @@ export class IncidentService {
 		return !!result.lastInsertRowid;
 	}
 
-	async getSites() {
-		return await db.select().from(sites);
+	async listSites() {
+		return await db.query.sites.findMany({
+			orderBy: [desc(sites.created_at)],
+		});
+	}
+
+	async listSitesWithIncidentStatus() {
+		return await db.query.sites.findMany({
+			with: {
+				incidents: {
+					with: {
+						events: true,
+					},
+				},
+			},
+			orderBy: [asc(sites.id)],
+		});
+	}
+
+	async listSiteWithIncidentStatus(id: number) {
+		return await db.query.sites.findFirst({
+			where: eq(sites.id, id),
+			with: {
+				incidents: {
+					with: {
+						events: true,
+					},
+				},
+			},
+		});
 	}
 
 	async getSiteById(id: number) {
@@ -341,3 +427,48 @@ export class IncidentService {
 }
 
 export const incidentService = new IncidentService();
+
+export type CreateEventReturn = Awaited<
+	ReturnType<typeof incidentService.createEvent>
+>;
+export type CreateIncidentReturn = NonNullable<
+	Awaited<ReturnType<typeof incidentService.createIncident>>
+>;
+export type CreateIncidentWithEventsReturn = Awaited<
+	ReturnType<typeof incidentService.createIncidentWithEvents>
+>;
+export type GetIncidentByIdReturn = Awaited<
+	ReturnType<typeof incidentService.getIncidentById>
+>;
+export type UpdateIncidentReturn = Awaited<
+	ReturnType<typeof incidentService.updateIncident>
+>;
+export type DeleteIncidentReturn = Awaited<
+	ReturnType<typeof incidentService.updateIncident>
+>;
+export type AddEventsToIncidentReturn = Awaited<
+	ReturnType<typeof incidentService.addEventsToIncident>
+>;
+export type ListIncidentsReturn = Awaited<
+	ReturnType<typeof incidentService.listIncidents>
+>;
+/*
+searchIncidents;
+filterIncidentsByType;
+filterIncidentsByPriority;
+filterIncidentsByStatus;
+filterIncidentsByAsignee;
+filterIncidentsByTag;
+getLastIncident;
+getLastIncidentsWithEvents;
+getEventsForIncident;
+updateEvent;
+deleteEvent;
+listSites;
+listSitesWithIncidentStatus;
+getSiteById;
+createSite;
+updateSite;
+deleteSite;
+getSiteIncidents;
+*/

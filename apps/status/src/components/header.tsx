@@ -118,7 +118,7 @@ function Dialog() {
 														className={cn(
 															"placeholder-opacity-50",
 															form.formState.errors.email &&
-																"border-red-500 dark:border-red-900 bg-red-50 dark:bg-red-500 placeholder-opacity-100 focus-visible:ring-red-500 dark:focus-visible:ring-red-900",
+																"border-red-500 text-white dark:border-red-900 bg-red-50 dark:bg-red-500 placeholder-opacity-100 focus-visible:ring-red-500 dark:focus-visible:ring-red-900",
 														)}
 													/>
 												</FormControl>
