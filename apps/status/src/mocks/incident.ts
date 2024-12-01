@@ -1,188 +1,199 @@
-type IncidentStatus = "open" | "resolved" | "closed";
-type IncidentPriority = "low" | "medium" | "high";
-type IncidentType = "incident" | "alert" | "issue" | "event";
-type EventStatus =
-	| "created"
-	| "updated"
-	| "resolved"
-	| "closed"
-	| "investigating";
-export type DateTime = Date | string | number;
+import { incidentService } from "@/server/services";
+//TODO: HATALI KOD.
 
-export interface Incident {
-	id: number;
-	title: string;
-	status: IncidentStatus;
-	created_at: DateTime;
-	updated_at: DateTime;
-	type: IncidentType;
-	priority: IncidentPriority;
-	assignee: string;
-	resolved_at: string | null;
-	tags: string[];
-	events: IncidentEvent[];
+async function getMockComponentGroups() {
+	return await incidentService.listComponentGroups();
 }
 
-export interface IncidentEvent {
-	id: number;
-	incident_id: number;
-	title: string;
-	message: string;
-	status: EventStatus;
-	created_at: DateTime;
-	updated_at: DateTime;
+async function getMockComponentsByGroupId(groupId: string) {
+	return await incidentService.getComponentById(groupId);
 }
 
-export const mockIncidents = [
-	{
-		id: 1,
-		title: "mehmetyigityalim.com spotify api",
-		status: "open",
-		created_at: "2024-07-12T00:00:00Z",
-		updated_at: "2021-01-01T00:00:00Z",
-		type: "incident",
-		priority: "low",
-		assignee: "John Doe",
-		resolved_at: null,
-		tags: ["tag1", "tag2"],
-		events: [
+export async function generateMockComponentGroups() {
+	return Promise.all([
+		await incidentService.createComponentGroup({
+			name: "Sites",
+			order: 1,
+		}),
+		await incidentService.createComponentGroup({
+			name: "API",
+			order: 2,
+		}),
+	]);
+}
+
+export async function generateMockComponents() {
+	const [sites, api] = await getMockComponentGroups();
+
+	if (!sites || !api) {
+		throw new Error("Component groups not found");
+	}
+
+	const { id: sitesId } = sites;
+	const { id: apiId } = api;
+
+	return Promise.all([
+		await incidentService.createComponent({
+			name: "mehmetyigityalim.com",
+			description: "mehmetyigityalim.com",
+			order: 1,
+			group_id: sitesId,
+		}),
+		await incidentService.createComponent({
+			name: "status.mehmetyigityalim.com",
+			description: "Monitoring service-status of api.mehmetyigityalim.com",
+			order: 2,
+			group_id: apiId,
+		}),
+		await incidentService.createComponent({
+			name: "api.mehmetyigityalim.com",
+			description: "API of mehmetyigityalim.com",
+			order: 3,
+			group_id: apiId,
+		}),
+		await incidentService.createComponent({
+			name: "app.mehmetyigityalim.com",
+			description: "App of mehmetyigityalim.com",
+			order: 4,
+			group_id: sitesId,
+		}),
+	]);
+}
+
+export async function generateMockIncidents() {
+	const id = await getMockComponentGroups();
+	if (!id || id === undefined) return;
+	const mockSite = getMockComponentsByGroupId(id[id.length - 1].id);
+
+	if (!mockSite) {
+		throw new Error("Components not found");
+	}
+
+	const now = new Date();
+
+	return await Promise.all([
+		await incidentService.createIncidentWithImpacts(
 			{
-				id: 1.1,
-				incident_id: 1,
-				title: "Resolved",
-				message: "This incident has been resolved.",
-				status: "resolved",
-				created_at: "2021-01-01T00:00:00Z",
-				updated_at: "2021-01-01T00:00:00Z",
+				title: "Status Genel Bakımı",
+				name: "status-site-maintenance",
+				description: "Status sitesi bakım çalışmaları yapılacaktır.",
+				impact: "degraded_performance",
+				severity: "critical",
+				started_at: now,
+				message: "Status sitesi bakım çalışmaları yapılacaktır.",
 			},
+			[mockSite.id],
+		),
+		await incidentService.createIncidentWithImpacts(
 			{
-				id: 1.2,
-				incident_id: 1,
-				title: "Update",
-				message:
-					"API response süresi planlanan süreden fazla olduğu için API'yi güncelliyoruz.",
-				status: "updated",
-				created_at: "2021-01-01T00:00:00Z",
-				updated_at: "2021-01-01T00:00:00Z",
+				title: "API GET Hatası",
+				name: "api-maintenance",
+				description: "API sorgulama hataları yaşanmaktadır.",
+				impact: "partial_outage",
+				severity: "major",
+				started_at: now,
+				message: "API bakım çalışmaları yapılacaktır.",
 			},
+			[mockApi.id],
+		),
+		await incidentService.createIncidentWithImpacts(
 			{
-				id: 1.3,
-				incident_id: 1,
-				title: "Investigating",
-				message: "We are currently investigating this issue.",
+				title: "App erişim sorunu",
+				name: "app-maintenance",
+				description: "App erişim sorunları yaşanmaktadır.",
+				impact: "partial_outage",
+				severity: "major",
+				started_at: now,
+				message: "App bakım çalışmaları yapılacacaktır.",
+			},
+			[mockSite.id],
+		),
+	]);
+}
+
+export async function generateMockComponentWithUpdates() {
+	const [mockSite] = await generateMockComponents();
+
+	if (!mockSite) {
+		throw new Error("Components not found");
+	}
+
+	const incident = await incidentService.createIncidentWithImpacts(
+		{
+			title: "App erişim sorunu",
+			name: "app-maintenance",
+			description: "App erişim sorunları yaşanmaktadır.",
+			impact: "partial_outage",
+			severity: "major",
+			started_at: new Date(),
+			message: "App bakım çalışmaları yapılacacaktır.",
+		},
+		[mockSite.id],
+	);
+
+	if (!incident) {
+		throw new Error("Incident not found");
+	}
+
+	/**
+	 * Incident Status Enum
+	 * **Detected**: Olay ilk tespit edildiğinde bu durum kullanılır. Bu, otomatik sistemler veya manuel raporlama yoluyla olabilir.
+	 * *Investigating**: Ekip olayı araştırmaya başladığında bu durum kullanılır. Bu aşamada, sorunun kapsamı ve nedeni henüz tam olarak bilinmemektedir.
+	 * *Identified**: Sorunun kök nedeni belirlendiğinde bu durum kullanılır. Ekip artık sorunu anlamış ve çözüm planı üzerinde çalışmaya başlamıştır.
+	 * *Resolving**: Ekip aktif olarak sorunu çözmeye çalışırken bu durum kullanılır. Bu, kod değişiklikleri, sistem yapılandırması güncellemeleri veya diğer düzeltici eylemleri içerebilir.
+	 * *Monitoring**: Çözüm uygulandıktan sonra, ekip sistemin stabil olduğundan emin olmak için izleme yaparken bu durum kullanılır.
+	 * *Resolved**: Sorun çözüldüğünde ve sistem normal çalışma durumuna döndüğünde bu durum kullanılır.
+	 * *Closed**: Olay tamamen kapatıldığında, tüm takip işlemleri tamamlandığında ve bir post-mortem analizi yapıldığında bu durum kullanılır.
+	 */
+
+	return Promise.all([
+		// detected
+		await incidentService.addIncidentUpdateToIncident(
+			{
+				message: "Olay ilk tespit edildi.",
 				status: "investigating",
-				created_at: "2021-01-01T00:00:00Z",
-				updated_at: "2021-01-01T00:00:00Z",
 			},
-		],
-	},
-	{
-		id: 1.4,
-		title: "mehmetyigityalim.com site bakımı",
-		status: "open",
-		created_at: "2024-07-10T00:00:00Z",
-		updated_at: "2021-01-01T00:00:00Z",
-		type: "incident",
-		priority: "low",
-		assignee: "John Doe",
-		resolved_at: null,
-		tags: ["tag1", "tag2"],
-		events: [
+			incident.id,
+		),
+		// investigating
+		await incidentService.addIncidentUpdateToIncident(
 			{
-				id: 1.5,
-				incident_id: 1,
-				title: "Resolved",
-				message: "This incident has been resolved.",
+				message: "Sorunun kök nedeni belirlendi.",
+				status: "identified",
+			},
+			incident.id,
+		),
+		// resolving
+		await incidentService.addIncidentUpdateToIncident(
+			{
+				message: "Çözüm uygulandı.",
 				status: "resolved",
-				created_at: "2021-01-01T00:00:00Z",
-				updated_at: "2021-01-01T00:00:00Z",
 			},
+			incident.id,
+		),
+		// monitoring
+		await incidentService.addIncidentUpdateToIncident(
 			{
-				id: 1.6,
-				incident_id: 1,
-				title: "Update",
-				message: "Tasarımsal düzenlemeler yapıldı.",
-				status: "updated",
-				created_at: "2021-01-01T00:00:00Z",
-				updated_at: "2021-01-01T00:00:00Z",
+				message: "Sistem stabil.",
+				status: "monitoring",
 			},
+			incident.id,
+		),
+		// resolved
+		await incidentService.addIncidentUpdateToIncident(
 			{
-				id: 1.7,
-				incident_id: 1,
-				title: "Investigating",
-				message: "We are currently investigating this issue.",
-				status: "investigating",
-				created_at: "2021-01-01T00:00:00Z",
-				updated_at: "2021-01-01T00:00:00Z",
-			},
-		],
-	},
-	{
-		id: 2,
-		title: "api.mehmetyigityalim.com bakımı",
-		status: "open",
-		created_at: "2024-07-17T00:00:00Z",
-		updated_at: "2021-01-01T00:00:00Z",
-		type: "incident",
-		priority: "low",
-		assignee: "John Doe",
-		resolved_at: null,
-		tags: ["tag1", "tag2"],
-		events: [
-			{
-				id: 2.1,
-				incident_id: 1,
-				title: "Resolved",
-				message: "This incident has been resolved.",
+				message: "Sistem normal çalışıyor.",
 				status: "resolved",
-				created_at: "2021-01-01T00:00:00Z",
-				updated_at: "2021-01-01T00:00:00Z",
 			},
+			incident.id,
+		),
+		// closed
+		await incidentService.addIncidentUpdateToIncident(
 			{
-				id: 2.2,
-				incident_id: 1,
-				title: "Update",
-				message: "API'ye yeni özellikler eklendi.",
-				status: "updated",
-				created_at: "2021-01-01T00:00:00Z",
-				updated_at: "2021-01-01T00:00:00Z",
+				message: "Olay kapatıldı.",
+				status: "closed",
 			},
-			{
-				id: 2.3,
-				incident_id: 1,
-				title: "Investigating",
-				message: "We are currently investigating this issue.",
-				status: "investigating",
-				created_at: "2021-01-01T00:00:00Z",
-				updated_at: "2021-01-01T00:00:00Z",
-			},
-			{
-				id: 2.4,
-				incident_id: 1,
-				title: "Update",
-				message: "API'ye yeni özellikler eklendi.",
-				status: "updated",
-				created_at: "2021-01-01T00:00:00Z",
-				updated_at: "2021-01-01T00:00:00Z",
-			},
-			{
-				id: 2.5,
-				incident_id: 1,
-				title: "Update",
-				message: "API'ye yeni özellikler eklendi.",
-				status: "updated",
-				created_at: "2021-01-01T00:00:00Z",
-				updated_at: "2021-01-01T00:00:00Z",
-			},
-			{
-				id: 2.6,
-				incident_id: 1,
-				title: "Update",
-				message: "API'ye yeni özellikler eklendi.",
-				status: "updated",
-				created_at: "2021-01-01T00:00:00Z",
-				updated_at: "2021-01-01T00:00:00Z",
-			},
-		],
-	},
-] satisfies Incident[];
+			incident.id,
+		),
+	]);
+}

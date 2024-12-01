@@ -1,101 +1,52 @@
-import React from "react";
-import { incidentService } from "@/server/services/incident";
-import {
-	startOfDay,
-	endOfDay,
-	format,
-	subDays,
-	eachDayOfInterval,
-} from "date-fns";
-import { tr } from "date-fns/locale";
+import { Icons } from "@/components/icons";
+import { LatestIncident } from "@/components/latest-incident";
 import { Status } from "@/components/status";
-import { Incident } from "@/components/incident";
-import { DateNavigation } from "@/components/date-navigation";
-import { randomString } from "@myy/shared";
+import { services } from "@/server/services";
+import { format } from "date-fns";
+import { Wrench } from "lucide-react";
+import Link from "next/link";
+import React from "react";
 
-export type DataType = Awaited<
-	ReturnType<typeof incidentService.listIncidents>
->;
-
-export default async function Home({
-	searchParams,
-}: {
-	searchParams: Promise<{
-		date?: string;
-	}>;
-}) {
-	const { date } = await searchParams;
-	const targetDate = date ? new Date(date) : new Date();
-
-	const twentyDaysAgo = subDays(targetDate, 19);
-
-	const data = await incidentService.listIncidents({
-		from: startOfDay(twentyDaysAgo),
-		to: endOfDay(targetDate),
-	});
-
-	const daysToShow = eachDayOfInterval({
-		start: twentyDaysAgo,
-		end: targetDate,
-	}).reverse();
-
-	if (!data) {
-		return <div>sonuç bulunamadı.</div>;
-	}
+export default async function Home() {
+	const [incidents, isMaintenance] = await Promise.all([
+		services.incident.listIncidents(),
+		services.scheduledMaintenance.listScheduledMaintenance(),
+	]);
 
 	return (
 		<>
+			{isMaintenance?.map((maintenance) => (
+				<div className="w-full px-4 md:px-0 py-2 " key={maintenance.id}>
+					<Link
+						href={`/maintenance/${maintenance.id}`}
+						className="w-full flex flex-row gap-x-4 items-start justify-start mt-1 p-3 border border-statuspage-neutral-80 dark:border-statuspage-neutral-700 dark:bg-statuspage-neutral-800 rounded text-center font-medium"
+					>
+						<Wrench className="size-6 shrink-0" />
+
+						<div className="flex flex-col gap-y-1 text-xs">
+							<span className="mx-1 text-statuspage-neutral-800 dark:text-white">
+								{maintenance.name}
+							</span>
+							<span className="text-statuspage-neutral-200">
+								{format(
+									new Date(maintenance.scheduled_start_time),
+									"dd/MM/yyyy HH:mm",
+								)}
+							</span>
+						</div>
+					</Link>
+				</div>
+			))}
 			<Status />
 			<section className="grid grid-cols-1 gap-4 pt-12">
-				<h1 className="w-full text-start text-3xl font-medium text-zinc-800 dark:text-zinc-200">
-					Son paylaşımlar
-				</h1>
-				<div className="w-full max-w-4xl space-y-6">
-					<div className="w-full">
-						<DateNavigation currentDate={targetDate} />
-						<React.Suspense
-							fallback={
-								<div className="w-full flex flex-col gap-10 mb-8">
-									{Array.from({ length: 10 }).map((_) => (
-										<div
-											key={randomString(10)}
-											className="animate-pulse flex flex-col gap-4"
-										>
-											<div className="w-1/2 h-4 bg-gray-400 rounded-md" />
-											<div className="w-full h-px bg-gray-200 rounded-md" />
-											<div className="w-2/3 h-4 bg-gray-200 rounded-md" />
-										</div>
-									))}
-								</div>
-							}
-						>
-							{daysToShow.map(async (day) => {
-								const dayIncidents = data.filter(
-									(incident) =>
-										new Date(incident.created_at as Date).toDateString() ===
-										day.toDateString(),
-								);
-
-								return (
-									<div key={day.toISOString()} className="mb-8">
-										<h4 className="text-lg font-semibold mb-2 border-b border-b-muted-foreground pb-2">
-											{format(day, "d MMMM yyyy", { locale: tr })}
-										</h4>
-										{dayIncidents.length > 0 ? (
-											dayIncidents.map((incident) => (
-												<Incident key={incident.id} incident={incident} />
-											))
-										) : (
-											<p className="text-muted-foreground">
-												Bu gün için olay kaydı bulunmamaktadır.
-											</p>
-										)}
-									</div>
-								);
-							})}
-						</React.Suspense>
-					</div>
-				</div>
+				<Link
+					id="latest-incidents"
+					href="#latest-incidents"
+					className="w-full px-6 md:px-0 pb-4 text-start text-xl font-semibold text-statuspage-neutral-800 dark:text-white"
+				>
+					Geçmiş Olaylar
+				</Link>
+				<LatestIncident incidents={incidents} />
 			</section>
 		</>
 	);

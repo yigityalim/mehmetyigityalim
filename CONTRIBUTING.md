@@ -76,7 +76,7 @@ Bu projeye katkıda bulunabileceğiniz alanlar aşağıdaki gibidir:
 │       ├── cn.ts
 │       ├── font.ts
 │       ├── globals.css
-│       ├── index.ts
+│       ├── index.tsx
 │       └── theme.tsx
 └── tooling
     └── typescript
@@ -103,7 +103,7 @@ Bu projeye katkıda bulunabileceğiniz alanlar aşağıdaki gibidir:
 | `packages/ui/cn.ts`                     | Muhtemelen sınıf adları (class names) için yardımcı dosya |
 | `packages/ui/font.ts`                   | Font yapılandırması veya yardımcı fonksiyonları           |
 | `packages/ui/globals.css`               | Global CSS stilleri                                       |
-| `packages/ui/index.ts`                  | UI paketinin ana giriş noktası                            |
+| `packages/ui/index.tsx`                  | UI paketinin ana giriş noktası                            |
 | `packages/ui/theme.tsx`                 | Tema yapılandırması veya bileşeni                         |
 | `tooling/typescript/base.json`          | Temel TypeScript yapılandırması                           |
 | `tooling/typescript/nextjs.json`        | Next.js projeleri için TypeScript yapılandırması          |

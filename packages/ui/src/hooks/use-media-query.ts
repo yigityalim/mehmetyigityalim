@@ -1,22 +1,32 @@
-import * as React from "react";
+"use client";
+import { useCallback, useEffect, useState } from "react";
 
-export function useMediaQuery(query: string) {
-  if (typeof window === "undefined") return false;
-  if (!query) return false;
+export function useMediaQuery(query: string): boolean {
+	const getMatches = useCallback((query: string) => {
+		if (typeof window === "undefined") return false;
+		return window.matchMedia(query).matches;
+	}, []);
 
-  const [matches, setMatches] = React.useState<boolean>(false);
+	const [matches, setMatches] = useState<boolean>(getMatches(query));
 
-  React.useEffect(() => {
-    const mediaQuery = window.matchMedia(query);
-    setMatches(mediaQuery.matches);
+	useEffect(() => {
+		const mediaQuery = window.matchMedia(query);
+		const handler = () => setMatches(getMatches(query));
 
-    const handler = (event: MediaQueryListEvent) => {
-      setMatches(event.matches);
-    };
+		handler();
 
-    mediaQuery.addEventListener("change", handler);
-    return () => mediaQuery.removeEventListener("change", handler);
-  }, [query]);
+		mediaQuery.addEventListener("change", handler);
 
-  return matches;
+		return () => mediaQuery.removeEventListener("change", handler);
+	}, [query, getMatches]);
+
+	return matches;
+}
+
+export function useResponsive() {
+	const isMobile = useMediaQuery("(max-width: 768px)");
+	const isTablet = useMediaQuery("(min-width: 769px) and (max-width: 1024px)");
+	const isDesktop = useMediaQuery("(min-width: 1025px)");
+
+	return { isMobile, isTablet, isDesktop };
 }

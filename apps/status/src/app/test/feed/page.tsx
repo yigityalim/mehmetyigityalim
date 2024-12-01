@@ -1,87 +1,192 @@
-import { Incident } from "@/components/incident";
-import { incidentService } from "@/server/services/incident";
+import * as mock from "@/mocks/incident";
+import { services } from "@/server/services";
 import { Button } from "@myy/ui/button";
-import { revalidatePath } from "next/cache";
+import { addHours } from "date-fns";
 import Form from "next/form";
-import { jsx } from "react/jsx-runtime";
 
 export default async function FeedPage() {
-	const data = await incidentService.listIncidents({});
-	async function handleSubmit() {
+	async function generateMockData() {
 		"use server";
-		/*
-		const response = await incidentService.createIncidentWithEvents({
-			title: "API GET sorgusunda hata alınıyor",
-			status: "open",
-			site_id: 1,
-			type: "high",
-			priority: "medium",
-			assignee: "bu sorunu en kısa sürede çözmemiz gerekiyor",
-			events: [
+		const performance1 = performance.now();
+		try {
+			console.log("Generating mock data...");
+
+			const now = new Date();
+
+			const sites = await services.componentGroup.createComponentGroup({
+				name: "Siteler",
+				order: 1,
+			});
+
+			const apis = await services.componentGroup.createComponentGroup({
+				name: "API'lar",
+				order: 2,
+			});
+
+			const services1 = await services.componentGroup.createComponentGroup({
+				name: "Hizmetler",
+				order: 3,
+			});
+
+			await services.component.createComponent({
+				name: "mehmetyigityalim.com",
+				description: "mehmetyigityalim.com sitesi",
+				order: 1,
+				group_id: sites!.id,
+			});
+
+			await services.component.createComponent({
+				name: "status.mehmetyigityalim.com",
+				description: "mehmetyigityalim.com sitesi için durum takip uygulaması",
+				order: 2,
+				group_id: sites!.id,
+			});
+
+			await services.component.createComponent({
+				name: "app.mehmetyigityalim.com",
+				description: "mehmetyigityalim uygulaması",
+				order: 3,
+				group_id: sites!.id,
+			});
+
+			await services.component.createComponent({
+				name: "case*.mehmetyigityalim.com",
+				description:
+					"mehmetyigityalim case yönetim uygulaması. * = 1, 2, 3, 4, ...",
+				order: 4,
+				group_id: sites!.id,
+			});
+
+			await services.component.createComponent({
+				name: "api.mehmetyigityalim.com",
+				description: "mehmetyigityalim.com sitesi için API",
+				order: 1,
+				group_id: apis!.id,
+			});
+
+			await services.component.createComponent({
+				name: "Services",
+				description: "mehmetyigityalim.com sitesi için servisler",
+				order: 2,
+				group_id: services1!.id,
+			});
+
+			const site = await services.component.getComponentByName(
+				"mehmetyigityalim.com",
+			);
+
+			console.log("MOCK: Site 1:", site);
+
+			if (!site || !("id" in site)) {
+				throw new Error("MOCK: first site not found!");
+			}
+
+			const incident = await services.incident.createIncidentWithImpacts(
 				{
-					title: "Hata kaydı oluşturuldu",
-					status: "open",
-					message: "hatanın çözümü için çalışmalar başlatıldı",
+					title: "mehmetyigityalim.com sitesinde tahmini kısa süreli kesinti.",
+					description:
+						"site kesintisi yaşanmaktadır. kısa sürede çözülecektir.",
+					impact: "major_outage",
+					severity: "critical",
+					message: "site kesintisi yaşanmaktadır. kısa sürede çözülecektir.",
+					started_at: now,
 				},
-			],
-		});
-        */
-		/*
-		const response = await incidentService.addEventsToIncident(2, [
-			{
-				title: "Olay kaydı güncellendi, olay kapatıldı",
-				status: "closed",
-				message: "Olay kapatıldı",
-			},
-		]);*/
-		await incidentService.createIncidentWithEvents({
-			title: "API PUT sorgusunda hata alınıyor",
-			status: "open",
-			site_id: 1,
-			type: "high",
-			priority: "medium",
-			assignee: "bu sorunu en kısa sürede çözüme ulaştıracağız.",
-			created_at: new Date("2024-10-10"),
-			events: [
+				[site.id!],
+			);
+
+			if (!incident) {
+				throw new Error("MOCK: Incident not found");
+			}
+
+			console.log("MOCK: Incident created:", incident);
+
+			// investigating
+			await services.incidentUpdate.addIncidentUpdateToIncident(
 				{
-					title: "Hata kaydı oluşturuldu",
-					status: "open",
-					message: "hatanın çözümü için çalışmalar başlatıldı",
-					created_at: new Date("2024-10-11"),
-				},
-				{
-					title: "Hata kaydı güncellendi",
-					status: "update",
-					message: "hatanın çözümü için çalışmalar devam ediyor",
-					created_at: new Date("2024-10-12"),
-				},
-				{
-					title: "Olay inceleniyor",
+					title: "Olay ilk tespit edildi.",
 					status: "investigating",
-					message: "hatanın çözümü için çalışmalar devam ediyor",
-					created_at: new Date("2024-10-13"),
+					content: "Site kesintisinin nedeni araştırılıyor.",
+					created_at: addHours(now, 1),
 				},
+				incident.id,
+			);
+
+			// identified
+			await services.incidentUpdate.addIncidentUpdateToIncident(
 				{
-					title: "Olay kapatıldı",
-					status: "closed",
-					message: "hatanın çözümü tamamlandı",
-					created_at: new Date("2024-10-14"),
+					title: "Sorunun kaynağı belirlendi.",
+					status: "identified",
+					content:
+						"Site kesintisinin kaynağı belirlendi. Çözüm planı üzerinde çalışılıyor.",
+					created_at: addHours(now, 2),
 				},
-			],
-		});
-		revalidatePath("/test/feed");
+				incident.id,
+			);
+
+			// resolving
+			await services.incidentUpdate.addIncidentUpdateToIncident(
+				{
+					title: "Çözüm uygulandı.",
+					status: "resolving",
+					content: "Site kesintisi çözüldü. Site tekrar erişime açıldı.",
+					created_at: addHours(now, 3),
+				},
+				incident.id,
+			);
+
+			// monitoring
+			await services.incidentUpdate.addIncidentUpdateToIncident(
+				{
+					title: "Sistem stabil.",
+					status: "monitoring",
+					content:
+						"Site kesintisi çözüldü. Tekrar kesinti yaşanmaması için izleme yapılıyor.",
+					created_at: addHours(now, 4),
+				},
+				incident.id,
+			);
+
+			// resolved
+			await services.incidentUpdate.addIncidentUpdateToIncident(
+				{
+					title: "Sistem normal çalışıyor.",
+					status: "resolved",
+					content: "Site kesintisi çözüldü. Site tekrar erişime açıldı.",
+					created_at: addHours(now, 5),
+				},
+				incident.id,
+			);
+
+			// closed
+			await services.incidentUpdate.addIncidentUpdateToIncident(
+				{
+					title: "Olay kapatıldı.",
+					status: "closed",
+					content: "Site kesintisi çözüldü. Olay kapatıldı.",
+					created_at: addHours(now, 6),
+				},
+				incident.id,
+			);
+		} catch (error) {
+			console.error("MOCK: Error generating mock data:", error);
+		} finally {
+			const performance2 = performance.now();
+			console.log(
+				`MOCK: Performance: ${Math.round(performance2 - performance1)}ms`,
+			);
+		}
 	}
 
 	return (
 		<div className="w-full flex flex-col gap-8 p-8 items-start justify-start">
-			<Form action={handleSubmit}>
-				<Button type="submit">Submit</Button>
+			<Form
+				action={generateMockData}
+				className="w-full flex flex-col gap-4 items-center justify-center"
+			>
+				<Button type="submit" className="w-full">
+					Feed
+				</Button>
 			</Form>
-			<div className="w-full flex flex-col gap-10 mb-8">
-				{data.map((incident) => (
-					<Incident incident={incident} key={incident.id} />
-				))}
-			</div>
 		</div>
 	);
 }

@@ -1,22 +1,18 @@
-import { incidentService } from "@/server/services/incident";
+import { listIncidents } from "@/server/services";
+import { Button } from "@myy/ui/button";
+import { cn } from "@myy/ui/cn";
 import {
-	startOfMonth,
+	addMonths,
+	eachDayOfInterval,
 	endOfMonth,
 	format,
-	addMonths,
-	subMonths,
-	eachDayOfInterval,
+	startOfMonth,
 	subDays,
+	subMonths,
 } from "date-fns";
 import { tr } from "date-fns/locale";
-import { cn } from "@myy/ui/cn";
-import Link from "next/link";
-import { Button } from "@myy/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-
-export type DataType = Awaited<
-	ReturnType<typeof incidentService.listIncidents>
->;
+import Link from "next/link";
 
 export default async function MonthlyIncidentList({
 	searchParams,
@@ -35,11 +31,11 @@ export default async function MonthlyIncidentList({
 		month && year ? new Date(Number(year), Number(month) - 1) : new Date();
 
 	const thirtyDaysAgo = subDays(targetDate, 29);
-
-	const data = await incidentService.listIncidents({
+	/*
+	const data = await listIncidents({
 		from: targetDate ? startOfMonth(targetDate) : thirtyDaysAgo,
 		to: targetDate ? endOfMonth(targetDate) : new Date(),
-	});
+	});*/
 
 	const prevMonth = subMonths(targetDate, 1);
 	const nextMonth = addMonths(targetDate, 1);
@@ -49,8 +45,8 @@ export default async function MonthlyIncidentList({
 		end: targetDate ?? startOfMonth(targetDate),
 	}).reverse();
 
-	if (!data) {
-		return <div>Yükleniyor...</div>;
+	if (true) {
+		return <div>test...</div>;
 	}
 
 	return (

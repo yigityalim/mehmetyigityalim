@@ -6,17 +6,14 @@ import { usePathname } from "next/navigation";
 export function Footer() {
 	const pathname = usePathname();
 	return (
-		<footer className="pb-20 mt-10 pt-5 border-t border-brand w-full flex items-center justify-between">
-			<Link
-				href={pathname.includes("/history") ? "/" : "/history"}
-				className="w-full text-xs text-brand"
-			>
+		<footer className="p-16 md:p-20 mt-10 border-t border-statuspage-neutral-80 dark:border-statuspage-neutral-700 w-full flex items-center justify-between *:shrink-0">
+			<Link href="/incidents" className="text-xs text-start px-2 py-1">
 				<ArrowLeft className="size-3 inline-block mr-2" />
-				{pathname.includes("/history") ? "Anasayfa" : "Raporlar Geçmişi"}
+				{pathname.includes("/incidents") ? "Anasayfa" : "Raporlar Geçmişi"}
 			</Link>
 			<Link
 				href="https://mehmetyigityalim.com"
-				className="w-full text-xs text-end"
+				className="text-xs text-end px-2 py-1"
 			>
 				Mehmet Yiğit Yalım
 			</Link>

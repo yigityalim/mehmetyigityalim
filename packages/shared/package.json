@@ -14,14 +14,25 @@
 		"./icons": "./src/icons.ts",
 		"./date": "./src/date.ts",
 		"./hooks": "./src/hooks.ts",
+		"./params": "./src/params.ts",
 		".": "./src/index.ts"
 	},
 	"dependencies": {
 		"@hookform/resolvers": "^3.9.1",
 		"@myy/tsconfig": "workspace:^",
 		"date-fns": "^4.1.0",
+		"kleur": "^4.1.5",
+		"lodash": "^4.17.21",
 		"lucide-react": "^0.447.0",
 		"nuqs": "2.1.1",
-		"react-hook-form": "^7.53.1"
+		"react": "19.0.0-rc-cd22717c-20241013",
+		"react-hook-form": "^7.53.2",
+		"usehooks-ts": "^3.1.0"
+	},
+	"devDependencies": {
+		"@myy/tsconfig": "workspace:",
+		"@types/lodash": "^4.17.13",
+		"@types/node": "^22.9.0",
+		"@types/react": "^18.3.12"
 	}
 }
