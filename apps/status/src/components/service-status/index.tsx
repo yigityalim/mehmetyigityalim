@@ -9,7 +9,7 @@ import {
 	AccordionTrigger,
 } from "@myy/ui/accordion";
 import { cn } from "@myy/ui/cn";
-import { useResponsive } from "@myy/ui/hooks";
+import { useMediaQuery } from "@myy/ui/hooks";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import React from "react";
@@ -37,7 +37,7 @@ export function ServiceStatus({
 	const [openState, setOpenState] = useState<string[]>([]);
 	const [status, setStatus] = useState<string>();
 	const [loading, setLoading] = useState(true);
-	const { isMobile } = useResponsive();
+	const isMobile = useMediaQuery("(max-width: 640px)");
 
 	useEffect(() => {
 		(async () => {
@@ -193,13 +193,13 @@ function ServiceStatusContent({
 }) {
 	const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
-	const daysToShow = 30; //useResponsive().isMobile ? 30 : 90;
+	const daysToShow = 30; //FIXME: useMediaQuery("(max-width: 640px)") ? 30 : 90; use 30 days for mobile, 60 days for tablet, 90 days for desktop
 	const today = new Date();
 	const startDate = new Date(
 		today.getTime() - (daysToShow - 1) * 24 * 60 * 60 * 1000,
 	);
 
-	const dailyStatus = useMemo<DailyStatus[]>(
+	const dailyStatus = useMemo(
 		() => calculateDailyStatus(component, startDate, daysToShow),
 		[component],
 	);
@@ -263,7 +263,7 @@ function ServiceNameAndUptime({
 					</Link>
 				</>
 			)}
-			<div className="ml-auto flex items-center justify-end gap-x-2 whitespace-nowrap">
+			<div className="ml-2 sm:ml-auto flex items-center justify-end gap-x-2 whitespace-nowrap">
 				<span
 					className={cn(
 						"font-semibold text-xs",

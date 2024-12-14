@@ -1,6 +1,7 @@
 import { BackButton } from "@/components/back-button";
 import { Icons } from "@/components/icons";
 import { HoverCard } from "@/components/ui/hover-card";
+import { maintenanceText } from "@/lib/status-utils";
 import { services } from "@/server/services";
 import { cn } from "@myy/ui/cn";
 import { format } from "date-fns";
@@ -8,17 +9,21 @@ import { tr } from "date-fns/locale";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-export default async function IncidentDatetimePage({
+export default async function MaintenancePage({
 	params,
 }: {
-	params: Promise<{ hash: string }>;
+	params: Promise<{ id: string }>;
 }) {
-	const { hash } = await params;
-	//if (![hash]) notFound();
+	const { id } = await params;
 
-	const incident = await services.incident.getIncidentByHash(hash);
+	const maintenance =
+		await services.scheduledMaintenance.getScheduledMaintenance(id);
 
-	if (!incident) notFound();
+	if (!maintenance) {
+		return notFound();
+	}
+
+	console.log(maintenance.updates);
 
 	// FIXME: change colors
 
@@ -27,16 +32,16 @@ export default async function IncidentDatetimePage({
 			<BackButton />
 			<div className="mt-4 dark:bg-[#191C24] border border-[#E2E4E9] dark:border-[#21242D] rounded-lg shadow-small overflow-hidden">
 				<div className="p-8">
-					<div className="inline-block px-2.5 py-1.5 rounded-full leading-none text-[#F59E0B] bg-[#F59E0B]/20">
-						{incident.status}
+					<div className="inline-block px-2.5 py-1.5 rounded-full leading-none text-[#0369A1] bg-[#0369A1]/20">
+						{maintenanceText[maintenance.status]}
 					</div>
 
 					<h2 className="mt-3 text-2xl font-bold text-[#191C24] dark:text-white max-w-[420px]">
-						{incident.title}
+						{maintenance.name}
 					</h2>
 					<div className="mt-3 font-medium text-sm text-[#70778C] dark:text-[#E2E4E9]/50">
 						{format(
-							new Date(incident.created_at as Date),
+							new Date(maintenance.scheduled_start_time as Date),
 							"dd MMMM yyyy, HH:mm",
 							{
 								locale: tr,
@@ -46,7 +51,7 @@ export default async function IncidentDatetimePage({
 					<div className="mt-3 font-medium text-sm text-[#70778C] dark:text-[#E2E4E9]/50">
 						Son güncelleme tarihi:{" "}
 						{format(
-							new Date(incident.updated_at as Date),
+							new Date(maintenance.updated_at as Date),
 							"dd MMMM yyyy, HH:mm",
 							{
 								locale: tr,
@@ -56,17 +61,15 @@ export default async function IncidentDatetimePage({
 				</div>
 				<div className="px-8 py-4 flex flex-wrap items-center font-medium border-t whitespace-nowrap border-[#E2E4E9]/50 dark:border-[#21242D]">
 					<div className="mr-4">Etkilenen servisler</div>
-					{incident.impactedComponents.map((component) => (
-						<div
-							key={component.id}
-							className="bg-[#F5F5F7] dark:bg-[#2D313C] mr-2 my-1 px-2 py-1 rounded-full"
-						>
-							{component.name}
-						</div>
-					))}
+					<Link
+						href="#" //{`/component/${maintenance.component.id}`}
+						className="bg-[#F5F5F7] dark:bg-[#2D313C] mr-2 my-1 px-2 py-1 rounded-full"
+					>
+						{maintenance.component.name}
+					</Link>
 				</div>
 				<div className="px-8 pt-4 pb-6 bg-statuspage-neutral-40 dark:bg-[#151820]">
-					{incident.updates
+					{maintenance.updates
 						.sort(
 							(a, b) =>
 								new Date(b.created_at as Date).getTime() -
@@ -90,12 +93,11 @@ export default async function IncidentDatetimePage({
 												"text-[#D97706]": update.status === "investigating",
 												"text-[#4ADE80]": update.status === "monitoring",
 												"text-[#F87171]": update.status === "detected",
-												"text-[#A855F7]": update.status === "resolving",
 											})}
 										/>
 									)}
 
-									{incident.updates.length > 1 && (
+									{maintenance.updates.length > 1 && (
 										<div className="absolute top-7 left-2 -bottom-2 border-l dark:border-[#21242D] border-[#E2E4E9]/50" />
 									)}
 								</div>
@@ -127,22 +129,15 @@ export default async function IncidentDatetimePage({
 															</p>
 															<hr className="my-1 border-b border-t-0 border-[#E2E4E9]/50 dark:border-[#2D313C]" />
 															<div className="mx-2">
-																{incident.impactedComponents.map(
-																	(component) => (
-																		<p
-																			className="py-2 whitespace-nowrap font-medium text-[#424757] dark:text-[#A7ACBB]"
-																			key={component.id}
-																		>
-																			<Icons.warning />
-																			<Link
-																				href="#" //{`/components/${component.[hash]}`}
-																				className="ml-1 hover:underline cursor-pointer"
-																			>
-																				{component.name}
-																			</Link>
-																		</p>
-																	),
-																)}
+																<p className="py-2 whitespace-nowrap font-medium text-[#424757] dark:text-[#A7ACBB]">
+																	<Icons.warning />
+																	<Link
+																		href="#" //{`/components/${component.[hash]}`}
+																		className="ml-1 hover:underline cursor-pointer"
+																	>
+																		{maintenance.component.name}
+																	</Link>
+																</p>
 															</div>
 														</div>
 													</div>

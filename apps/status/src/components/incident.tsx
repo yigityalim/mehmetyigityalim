@@ -34,7 +34,7 @@ export function Incident({ incident, className }: Props) {
 				"block pt-8 transition hover:bg-neutral-20 dark:bg-statuspage-neutral-800 dark:hover:bg-statuspage-neutral-700/70 px-7 pb-8 border-b last:border-none border-statuspage-neutral-80 dark:border-statuspage-neutral-700 rounded-lg md:pl-0",
 				className,
 			)}
-			href={`/incidents/${incident.id}`}
+			href={`/incidents/${incident.hash}`}
 		>
 			<div className="flex">
 				<p className="grow text-statuspage-neutral-800 dark:text-white font-medium text-base">

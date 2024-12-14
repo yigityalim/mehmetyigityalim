@@ -302,6 +302,9 @@ importers:
       react-hook-form:
         specifier: ^7.53.2
         version: 7.53.2(react@19.0.0-rc-cd22717c-20241013)
+      server-only:
+        specifier: ^0.0.1
+        version: 0.0.1
       usehooks-ts:
         specifier: ^3.1.0
         version: 3.1.0(react@19.0.0-rc-cd22717c-20241013)

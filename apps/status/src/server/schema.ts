@@ -1,3 +1,4 @@
+import { createHash, randomBytes } from "node:crypto";
 import { relations } from "drizzle-orm";
 import { sql } from "drizzle-orm";
 import {
@@ -7,6 +8,13 @@ import {
 	text,
 } from "drizzle-orm/sqlite-core";
 import type { AdapterAccount } from "next-auth/adapters";
+
+const hash = () =>
+	createHash("sha256")
+		.update(
+			`${randomBytes(16).toString("hex")}${Date.now().toString()}-${Math.random()}`,
+		)
+		.digest("hex");
 
 /**
  * Impact Enum -> Olay Etkisi
@@ -66,9 +74,8 @@ export const severityEnum = [
  * **Component**: Sisteminizdeki bileşenleri temsil eder. Bu, farklı hizmetleri veya altyapı bileşenlerini kategorize etmenizi sağlar.
  */
 export const component = sqliteTable("component", {
-	id: text("id")
-		.primaryKey()
-		.$defaultFn(() => crypto.randomUUID()),
+	id: integer("id").primaryKey({ autoIncrement: true }),
+	hash: text("hash").unique().$defaultFn(hash),
 	name: text("name").notNull(), // Adı
 	description: text("description"), // Açıklama
 	status: text("status", { enum: impactEnum }).notNull().default("operational"), // Durum: operasyonel
@@ -88,9 +95,8 @@ export const component = sqliteTable("component", {
  * **ComponentGroup**: Sisteminizdeki bileşen gruplarını temsil eder. Bu, farklı hizmetleri veya altyapı bileşenlerini kategorize etmenizi sağlar.
  */
 export const componentGroup = sqliteTable("component_group", {
-	id: text("id")
-		.primaryKey()
-		.$defaultFn(() => crypto.randomUUID()),
+	id: integer("id").primaryKey({ autoIncrement: true }),
+	hash: text("hash").unique().$defaultFn(hash),
 	name: text("name").notNull(), // Adı
 	order: integer("order").notNull(), // Sıralama
 	published: integer("published", { mode: "boolean" }).notNull().default(false), // Yayınlandı mı?
@@ -107,9 +113,8 @@ export const componentGroup = sqliteTable("component_group", {
  * **Incident**: Olayları yönetmek için kullanılır. Her olayın bir durumu, etkisi ve şiddeti vardır.
  */
 export const incident = sqliteTable("incident", {
-	id: text("id")
-		.primaryKey()
-		.$defaultFn(() => crypto.randomUUID()),
+	id: integer("id").primaryKey({ autoIncrement: true }),
+	hash: text("hash").unique().$defaultFn(hash),
 	title: text("title").notNull(), // Kullanıcıya gösterilecek açıklayıcı başlık
 	slug: text("slug").unique(), // URL'de kullanılacak kısa isim
 	description: text("description"),
@@ -135,9 +140,8 @@ export const incident = sqliteTable("incident", {
  * **IncidentUpdate**: Olay güncellemelerini takip eder. Bu, kullanıcılara olay hakkında düzenli güncellemeler sağlamanıza olanak tanır.
  */
 export const incidentUpdate = sqliteTable("incident_update", {
-	id: text("id")
-		.primaryKey()
-		.$defaultFn(() => crypto.randomUUID()),
+	id: integer("id").primaryKey({ autoIncrement: true }),
+	hash: text("hash").unique().$defaultFn(hash),
 	incident_id: text("incident_id")
 		.notNull()
 		.references(() => incident.id),
@@ -164,9 +168,8 @@ export const incidentUpdate = sqliteTable("incident_update", {
  * **actual_end_time**: Gerçekleşen bitiş zamanı
  */
 export const scheduledMaintenance = sqliteTable("scheduled_maintenance", {
-	id: text("id")
-		.primaryKey()
-		.$defaultFn(() => crypto.randomUUID()),
+	id: integer("id").primaryKey({ autoIncrement: true }),
+	hash: text("hash").unique().$defaultFn(hash),
 	name: text("name").notNull(),
 	description: text("description"),
 	status: text("status", { enum: ["scheduled", "in_progress", "completed"] })
@@ -197,9 +200,8 @@ export const scheduledMaintenance = sqliteTable("scheduled_maintenance", {
  * **MaintenanceUpdate**: Bakım güncellemelerini takip eder. Bu, kullanıcılara bakım hakkında düzenli güncellemeler sağlamanıza olanak tanır.
  */
 export const maintenanceUpdate = sqliteTable("maintenance_update", (c) => ({
-	id: text("id")
-		.primaryKey()
-		.$defaultFn(() => crypto.randomUUID()),
+	id: integer("id").primaryKey({ autoIncrement: true }),
+	hash: text("hash").unique().$defaultFn(hash),
 	maintenance_id: text("maintenance_id")
 		.notNull()
 		.references(() => scheduledMaintenance.id),
@@ -223,9 +225,8 @@ export const maintenanceUpdate = sqliteTable("maintenance_update", (c) => ({
  *
  */
 export const incidentImpact = sqliteTable("incident_impact", {
-	id: text("id")
-		.primaryKey()
-		.$defaultFn(() => crypto.randomUUID()),
+	id: integer("id").primaryKey({ autoIncrement: true }),
+	hash: text("hash").unique().$defaultFn(hash),
 	incident_id: text("incident_id")
 		.notNull()
 		.references(() => incident.id),

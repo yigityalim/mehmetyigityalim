@@ -7,7 +7,7 @@ export default async function AppLayout({
 }: Readonly<React.PropsWithChildren>) {
 	return (
 		<main className="w-full">
-			<div className="w-full container mx-auto px-4">
+			<div className="w-full container mx-auto">
 				<Header />
 				<div className="md:hidden h-[calc(50px+50px)]" />
 				{children}

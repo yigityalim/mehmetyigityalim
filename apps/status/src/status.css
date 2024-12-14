@@ -1,0 +1,19 @@
+:root {
+	--color-text: #70778c;
+	--color-bg: #f9fafb;
+}
+
+.dark {
+	--color-text: #8a91a5;
+	--color-bg: #0f121a;
+}
+
+html {
+	color: var(--color-text);
+	/*background-color: var(--color-bg);*/
+}
+
+body {
+	font-size: 13px;
+	line-height: 150%;
+}
