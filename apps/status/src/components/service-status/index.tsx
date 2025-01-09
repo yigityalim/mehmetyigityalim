@@ -1,7 +1,7 @@
 "use client";
 
 import { getUpTimeColor, statusText } from "@/lib/status-utils";
-import type { ListComponentsReturnType } from "@/server/services";
+import type { ListComponentsReturnType } from "@/db/services";
 import {
 	Accordion,
 	AccordionContent,

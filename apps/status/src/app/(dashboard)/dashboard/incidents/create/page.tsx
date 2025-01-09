@@ -1,5 +1,5 @@
 import { FormItem } from "@/components/dashboard/form-item";
-import services from "@/server/services";
+import services from "@/db/services";
 import { Button, buttonVariants } from "@myy/ui/button";
 import { Input } from "@myy/ui/input";
 import { Label } from "@myy/ui/label";
@@ -35,7 +35,7 @@ export default async function CreateIncidentPage() {
 					{allComponents.length > 0 ? (
 						<Form
 							action={async (formData) => {
-								"use server";
+								"use db";
 								const data = {
 									title: formData.get("incident-title") as string,
 									slug: slugify(formData.get("incident-title") as string),

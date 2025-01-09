@@ -4,6 +4,18 @@ Tüm önemli değişiklikler bu dosyada belgelenecektir.
 
 Bu proje [Semantic Versioning](https://semver.org/lang/tr/) prensiplerine uymaktadır.
 
+## [5.0.0] - 2025-01-09
+
+### Eklenenler
+
+- Tasarımsal düzeltmeler
+- Kimlik doğrulama düzeltildi ve stabil hale getiriliyor.
+- Backend geliştirmeleri
+
+### Değişenler
+
+- Veritabanı tekrardan yapılandırıldı.
+
 ## [0.4.0]
 
 ### Eklenenler

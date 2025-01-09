@@ -5,8 +5,8 @@ import type {
 	IncidentImpactSelect,
 	IncidentSelect,
 	IncidentUpdateSelect,
-} from "@/server/schema";
-import type { IncidentServiceFunctionReturnType } from "@/server/services";
+} from "@/db/schema";
+import type { IncidentServiceFunctionReturnType } from "@/db/services";
 import { Button } from "@myy/ui/button";
 import { cn } from "@myy/ui/cn";
 import { format } from "date-fns";
@@ -16,9 +16,9 @@ import Link from "next/link";
 import React from "react";
 
 export type Props = Readonly<{
-	incident: NonNullable<
+	incident: NonNullable<Awaited<
 		IncidentServiceFunctionReturnType<"listIncidents">
-	>[number] & {
+	>>[number] & {
 		impactedComponents: NonNullable<IncidentImpactSelect[]>;
 		updates: NonNullable<IncidentUpdateSelect[]>;
 	};
@@ -31,7 +31,7 @@ export function Incident({ incident, className }: Props) {
 	return (
 		<Link
 			className={cn(
-				"block pt-8 transition hover:bg-neutral-20 dark:bg-statuspage-neutral-800 dark:hover:bg-statuspage-neutral-700/70 px-7 pb-8 border-b last:border-none border-statuspage-neutral-80 dark:border-statuspage-neutral-700 rounded-lg md:pl-0",
+				"block pt-8 transition hover:bg-neutral-20 dark:bg-statuspage-neutral-800 dark:hover:bg-statuspage-neutral-700/70 px-7 pb-8 border-b last:border-none border-statuspage-neutral-80 dark:border-statuspage-neutral-700 rounded-lg ",
 				className,
 			)}
 			href={`/incidents/${incident.hash}`}

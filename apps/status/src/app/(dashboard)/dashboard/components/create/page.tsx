@@ -1,7 +1,7 @@
 import { FormItem } from "@/components/dashboard/form-item";
 import { impactText } from "@/lib/utils";
-import { impactEnum } from "@/server/schema";
-import services from "@/server/services";
+import { impactEnum } from "@/db/schema";
+import services from "@/db/services";
 import { Button } from "@myy/ui/button";
 import { Checkbox } from "@myy/ui/checkbox";
 import { Input } from "@myy/ui/input";
@@ -46,7 +46,7 @@ export default async function CreateComponentPage() {
 					{allComponentGroups.length > 0 ? (
 						<Form
 							action={async (formData) => {
-								"use server";
+								"use db";
 								// mapping formData
 								const data = {
 									name: formData.get("component-name"),

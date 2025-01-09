@@ -1,8 +1,10 @@
 // utils.ts
-import { db } from "@/server/db";
-import { component, incident } from "@/server/schema";
+import { db } from "@/db/db";
+import { component, incident } from "@/db/schema";
 import { asc, desc, eq, lte, or } from "drizzle-orm";
 import services from "./index";
+import path from "node:path";
+import * as fs from "node:fs";
 
 export type UtilsServiceFunctionReturnType<
 	K extends keyof typeof utilsService,
@@ -14,6 +16,7 @@ export const utilsService = {
 	getSystemStatus,
 	getUptime,
 	withErrorHandling,
+	isDatabaseEmpty,
 };
 
 /**
@@ -226,4 +229,30 @@ export function withErrorHandling<T>(
 		}
 		return undefined;
 	}
+}
+
+/**
+ * Veritabanının boş olup olmadığını kontrol eder.
+ * @returns {boolean | Promise<boolean | undefined> | undefined} Veritabanı boş ise true, dolu ise false döner
+ * @example
+ * const isEmpty = isDatabaseEmpty();
+ * console.log(isEmpty);
+ */
+export function isDatabaseEmpty(): boolean | Promise<boolean | undefined> | undefined {
+	return withErrorHandling(async () => {
+
+		if (fs.existsSync(path.join(process.cwd(), "data", process.env.DATABASE_NAME!))) {
+			return false;
+		}
+
+		const incidentCount = await db.$count(incident);
+
+		if (incidentCount > 0) {
+			return false;
+		}
+
+		//TODO: add more checks here
+
+		return true
+	});
 }

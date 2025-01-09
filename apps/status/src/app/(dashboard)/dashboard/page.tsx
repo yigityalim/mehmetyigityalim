@@ -1,19 +1,30 @@
-"use client";
-import { Modal } from "@/components/ui/modal";
-import { Button } from "@myy/ui/button";
 import type React from "react";
+import {getSession} from "@/lib/session";
+import Link from "next/link";
+import {SignOutButton} from "@/components/sign-out";
+import {redirect} from "next/navigation";
+import {authClient} from "@/lib/auth/client";
 
-export default function DashboardPage() {
-	const isClosed = true;
-	return (
-		<div>
-			dashboarda
-			<Modal header="Abone Ol" trigger="Abone Ol" className="min-h-[50dvh]">
-				<div className="w-full flex flex-col gap-4 items-center justify-center">
-					<h1 className="text-2xl font-semibold">Edit Incident</h1>
-					<p className="text-gray-500 italic">#test</p>
-				</div>
-			</Modal>
-		</div>
-	);
+export default async function DashboardPage() {
+    const session = await getSession();
+    const organization = await authClient.organization.list();
+
+    if (!session.data) {
+        redirect("/sign-in");
+    }
+
+    return (
+        <div>
+                <div>
+                    <h1>Dashboard</h1>
+                    <pre className="w-full text-wrap">
+                        {JSON.stringify(session.data, null, 2)}
+                    </pre>
+                    <pre className="w-full text-wrap">
+                        {JSON.stringify(organization, null, 2)}
+                    </pre>
+                    <SignOutButton />
+                </div>
+        </div>
+    );
 }

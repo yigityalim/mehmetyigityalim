@@ -1,6 +1,6 @@
 "use client";
 
-import type { IncidentServiceFunctionReturnType } from "@/server/services";
+import type { IncidentServiceFunctionReturnType } from "@/db/services";
 import { useSessionStorage } from "@myy/shared/hooks";
 import { cn } from "@myy/ui/cn";
 import { useState } from "react";

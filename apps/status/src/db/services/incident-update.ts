@@ -1,20 +1,20 @@
-// incident.update.service.ts
-import { db } from "@/server/db";
+// incident-update.ts
+import { db } from "@/db/db";
 import {
 	type IncidentUpdateInsert,
 	incident,
-	incidentUpdate,
-} from "@/server/schema";
+	incidentUpdate as incidentUpdateSchema,
+} from "@/db/schema";
 import { _ } from "@myy/shared";
 import { desc, eq } from "drizzle-orm";
 import type { MaybePromise, ServiceFunctionReturnType } from "./types";
 import { withErrorHandling } from "./utils";
 
 export type IncidentUpdateServiceFunctionReturnType<
-	K extends keyof typeof incidentUpdateService,
-> = ServiceFunctionReturnType<typeof incidentUpdateService, K>;
+	K extends keyof typeof incidentUpdate,
+> = ServiceFunctionReturnType<typeof incidentUpdate, K>;
 
-export const incidentUpdateService = {
+export const incidentUpdate = {
 	addIncidentUpdateToIncident,
 	getIncidentUpdateById,
 	updateIncidentUpdate,
@@ -29,7 +29,7 @@ export async function addIncidentUpdateToIncident(
 		async () =>
 			await db.transaction(async (tx) => {
 				const [insertedUpdate] = await tx
-					.insert(incidentUpdate)
+					.insert(incidentUpdateSchema)
 					.values({
 						...data,
 						incident_id: incidentId,
@@ -60,7 +60,7 @@ export async function getIncidentUpdateById(id: string) {
 	return withErrorHandling(
 		async () =>
 			await db.query.incidentUpdate.findFirst({
-				where: eq(incidentUpdate.id, id),
+				where: eq(incidentUpdateSchema.id, id),
 			}),
 	);
 }
@@ -70,9 +70,9 @@ export async function updateIncidentUpdate(
 	data: Partial<IncidentUpdateInsert>,
 ) {
 	const [updatedUpdate] = await db
-		.update(incidentUpdate)
+		.update(incidentUpdateSchema)
 		.set({ ...data, updated_at: new Date() })
-		.where(eq(incidentUpdate.id, id))
+		.where(eq(incidentUpdateSchema.id, id))
 		.returning();
 	return withErrorHandling(async () => updatedUpdate);
 }
@@ -81,7 +81,7 @@ export async function listIncidentUpdates() {
 	return withErrorHandling(
 		async () =>
 			await db.query.incidentUpdate.findMany({
-				orderBy: [desc(incidentUpdate.created_at)],
+				orderBy: [desc(incidentUpdateSchema.created_at)],
 			}),
 	);
 }

@@ -1,7 +1,6 @@
-import { Icons } from "@/components/icons";
 import { LatestIncident } from "@/components/latest-incident";
 import { Status } from "@/components/status";
-import { services } from "@/server/services";
+import { services } from "@/db/services";
 import { format } from "date-fns";
 import { Wrench } from "lucide-react";
 import Link from "next/link";

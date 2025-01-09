@@ -1,4 +1,4 @@
-import services from "@/server/services";
+import services from "@/db/services";
 import { notFound } from "next/navigation";
 
 export default async function ComponentEditPage({

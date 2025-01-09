@@ -1,13 +1,13 @@
 "use client";
 
 import { Incident } from "@/components/incident";
-import type { IncidentServiceFunctionReturnType } from "@/server/services";
+import type { IncidentServiceFunctionReturnType } from "@/db/services";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
 import React from "react";
 
 type LatestIncidentProps = {
-	incidents: IncidentServiceFunctionReturnType<"listIncidents">;
+	incidents: Awaited<IncidentServiceFunctionReturnType<"listIncidents">>;
 	hideIncidentUpdates?: boolean;
 };
 
@@ -37,7 +37,7 @@ export function LatestIncident({
 	return (
 		<div className="w-full">
 			<h4 className="text-sm font-semibold mb-4 border-b px-5 md:px-0 border-b-statuspage-neutral-80 pb-2 text-statuspage-neutral-200 dark:border-statuspage-neutral-700">
-				{format(latestDate, "d MMM, yyyy", { locale: tr })} - En Son Olay
+				{`${format(latestDate, "d MMM, yyyy", { locale: tr })} - En Son Olay`}
 			</h4>
 			<div className="w-full px-5">
 				<Incident incident={latestIncident} />

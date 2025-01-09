@@ -1,5 +1,5 @@
 import { FormItem } from "@/components/dashboard/form-item";
-import services from "@/server/services";
+import services from "@/db/services";
 import { Button } from "@myy/ui/button";
 import { Checkbox } from "@myy/ui/checkbox";
 import { Input } from "@myy/ui/input";
@@ -31,7 +31,7 @@ export default async function CreateComponentGroupPage() {
 				<div className="pt-14 w-full flex flex-col gap-2 items-center justify-start">
 					<Form
 						action={async (formData) => {
-							"use server";
+							"use db";
 							// mapping formData
 							const data = {
 								name: formData.get("component-group-name"),
@@ -47,7 +47,7 @@ export default async function CreateComponentGroupPage() {
 								return;
 							}
 
-							// send data to server
+							// send data to db
 
 							const response =
 								await services.componentGroup.createComponentGroup(

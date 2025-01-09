@@ -1,8 +1,8 @@
 "use client";
 
 import { Incident } from "@/components/incident";
-import { IncidentSelect } from "@/server/schema";
-import type { IncidentServiceFunctionReturnType } from "@/server/services";
+import { IncidentSelect } from "@/db/schema";
+import type { IncidentServiceFunctionReturnType } from "@/db/services";
 import { randomString } from "@myy/shared";
 import {
 	parseAsString,

@@ -5,7 +5,7 @@ export default function SignIn() {
 	return (
 		<form
 			action={async (formData) => {
-				"use server";
+				"use db";
 				try {
 					await signIn("credentials", formData);
 				} catch (error) {

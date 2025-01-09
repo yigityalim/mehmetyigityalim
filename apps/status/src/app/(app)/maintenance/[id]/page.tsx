@@ -2,7 +2,7 @@ import { BackButton } from "@/components/back-button";
 import { Icons } from "@/components/icons";
 import { HoverCard } from "@/components/ui/hover-card";
 import { maintenanceText } from "@/lib/status-utils";
-import { services } from "@/server/services";
+import { services } from "@/db/services";
 import { cn } from "@myy/ui/cn";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";

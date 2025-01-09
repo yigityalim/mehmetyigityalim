@@ -1,21 +1,18 @@
-// component.service.ts
+// component.ts
 import {
-	type ComponentGroupSelect,
-	type ComponentSelect,
-	type IncidentSelect,
 	db,
-} from "@/server/db";
-import { type ComponentInsert, component } from "@/server/schema";
-import { services } from "@/server/services/index";
+} from "@/db/db";
+import { type ComponentInsert, component as componentSchema} from "@/db/schema";
+import { services } from "@/db/services/index";
 import { asc, eq } from "drizzle-orm";
 import type { MaybePromise, ServiceFunctionReturnType } from "./types";
 import { withErrorHandling } from "./utils";
 
 export type ComponentServiceFunctionReturnType<
-	K extends keyof typeof componentService,
-> = ServiceFunctionReturnType<typeof componentService, K>;
+	K extends keyof typeof component,
+> = ServiceFunctionReturnType<typeof component, K>;
 
-export const componentService = {
+export const component = {
 	createComponent,
 	getComponentById,
 	getComponentByName,
@@ -27,7 +24,7 @@ export const componentService = {
 export async function createComponent(data: Omit<ComponentInsert, "id">) {
 	return withErrorHandling(async () => {
 		const [insertedComponent] = await db
-			.insert(component)
+			.insert(componentSchema)
 			.values({
 				...data,
 				created_at: new Date(),
@@ -41,7 +38,7 @@ export async function createComponent(data: Omit<ComponentInsert, "id">) {
 export async function getComponentById(id: string) {
 	return withErrorHandling(async () =>
 		db.query.component.findFirst({
-			where: eq(component.id, id),
+			where: eq(componentSchema.id, id),
 			with: {
 				group: true,
 				incidentImpacts: true,
@@ -53,7 +50,7 @@ export async function getComponentById(id: string) {
 export async function getComponentByName(name: string) {
 	return withErrorHandling(async () =>
 		db.query.component.findFirst({
-			where: eq(component.name, name),
+			where: eq(componentSchema.name, name),
 			with: {
 				group: true,
 				incidentImpacts: true,
@@ -68,9 +65,9 @@ export async function updateComponent(
 ) {
 	return withErrorHandling(async () => {
 		const [updatedComponent] = await db
-			.update(component)
+			.update(componentSchema)
 			.set({ ...data, updated_at: new Date() })
-			.where(eq(component.id, id))
+			.where(eq(componentSchema.id, id))
 			.returning();
 		return updatedComponent;
 	});
@@ -78,7 +75,7 @@ export async function updateComponent(
 
 export async function deleteComponent(id: string) {
 	withErrorHandling(
-		async () => await db.delete(component).where(eq(component.id, id)),
+		async () => await db.delete(componentSchema).where(eq(componentSchema.id, id)),
 	);
 }
 
@@ -90,7 +87,7 @@ export async function listComponents() {
 				with: {
 					group: true,
 				},
-				orderBy: [asc(component.order)],
+				orderBy: [asc(componentSchema.order)],
 			})
 			.then(async (components) => {
 				return Promise.all(

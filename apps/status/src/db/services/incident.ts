@@ -1,22 +1,22 @@
-// incident.service.ts
-import { db } from "@/server/db";
+// incident.ts
+import { db } from "@/db/db";
 import {
 	type IncidentInsert,
 	component,
-	incident,
+	incident as incidentSchema,
 	incidentImpact,
 	incidentUpdate,
-} from "@/server/schema";
+} from "@/db/schema";
 import { _ } from "@myy/shared";
 import { and, desc, eq, gte, inArray, lte } from "drizzle-orm";
 import type { ServiceFunctionReturnType } from "./types";
 import { withErrorHandling } from "./utils";
 
 export type IncidentServiceFunctionReturnType<
-	K extends keyof typeof incidentService,
-> = ServiceFunctionReturnType<typeof incidentService, K>;
+	K extends keyof typeof incident,
+> = ServiceFunctionReturnType<typeof incident, K>;
 
-export const incidentService = {
+export const incident = {
 	createIncidentWithImpacts,
 	getIncidentByHash,
 	getLastIncident,
@@ -42,7 +42,7 @@ export async function createIncidentWithImpacts(
 		db.transaction(async (tx) => {
 			// incident tablosuna ekle
 			const [insertedIncident] = await tx
-				.insert(incident)
+				.insert(incidentSchema)
 				.values({
 					...incidentData,
 					created_at: data.created_at ?? new Date(),
@@ -60,13 +60,13 @@ export async function createIncidentWithImpacts(
 				});
 
 				// etkilenen bileşenleri ekle
-				await tx.insert(incidentImpact).values(
-					componentIds.map((componentId) => ({
+				for (const componentId of componentIds) {
+					await tx.insert(incidentImpact).values({
 						incident_id: insertedIncident.id,
 						component_id: componentId,
 						created_at: data.created_at ?? new Date(),
-					})),
-				);
+					});
+				}
 			}
 
 			// etkilenen bileşenlerin durumunu güncelle
@@ -91,7 +91,7 @@ export async function getLastIncident() {
 		async () =>
 			await db.transaction(async (tx) => {
 				const lastIncident = await tx.query.incident.findFirst({
-					orderBy: [desc(incident.created_at)],
+					orderBy: [desc(incidentSchema.created_at)],
 					with: {
 						updates: true,
 						impactedComponents: {
@@ -108,7 +108,7 @@ export async function getLastIncident() {
 }
 
 export async function listIncidents() {
-	if (!((await db.$count(incident)) > 0)) {
+	if (!((await db.$count(incidentSchema)) > 0)) {
 		return [];
 	}
 	const incidents = await db.query.incident.findMany({
@@ -120,7 +120,7 @@ export async function listIncidents() {
 				},
 			},
 		},
-		orderBy: [desc(incident.created_at)],
+		orderBy: [desc(incidentSchema.created_at)],
 	});
 
 	return withErrorHandling(() => incidents);
@@ -130,7 +130,7 @@ export async function getIncidentByHash(hash: string) {
 	return withErrorHandling(async () => {
 		return await db.transaction(async (tx) => {
 			const incidentSelect = await tx.query.incident.findFirst({
-				where: eq(incident.hash, hash),
+				where: eq(incidentSchema.hash, hash),
 				with: {
 					updates: true,
 					impactedComponents: {
@@ -148,10 +148,15 @@ export async function getIncidentByHash(hash: string) {
 			}
 
 			const impactedComponents = await tx.query.component.findMany({
+				with: {
+					group: true,
+				},
+				/*
 				where: inArray(
 					component.id,
-					incidentSelect.impactedComponents.map((ic) => ic.component_id),
-				),
+					incidentSelect.impactedComponents.map((i) => i.component_id),
+				)
+				 */
 			});
 
 			return {
@@ -167,16 +172,16 @@ export async function updateIncident(
 	data: Partial<IncidentInsert>,
 ) {
 	const [updatedIncident] = await db
-		.update(incident)
+		.update(incidentSchema)
 		.set({ ...data, updated_at: new Date() })
-		.where(eq(incident.id, id))
+		.where(eq(incidentSchema.id, id))
 		.returning();
 	return withErrorHandling(async () => updatedIncident);
 }
 
 export async function deleteIncident(id: string) {
 	withErrorHandling(
-		async () => await db.delete(incident).where(eq(incident.id, id)),
+		async () => await db.delete(incidentSchema).where(eq(incidentSchema.id, id)),
 	);
 }
 
@@ -199,9 +204,9 @@ export async function getIncidentHistory(
 
 			return tx.query.incident.findMany({
 				where: and(
-					gte(incident.created_at, from),
-					lte(incident.created_at, to),
-					inArray(incident.id, incidentImpactId),
+					gte(incidentSchema.created_at, from),
+					lte(incidentSchema.created_at, to),
+					inArray(incidentSchema.id, incidentImpactId),
 				),
 				with: {
 					updates: true,
@@ -211,7 +216,7 @@ export async function getIncidentHistory(
 						},
 					},
 				},
-				orderBy: [desc(incident.created_at)],
+				orderBy: [desc(incidentSchema.created_at)],
 			});
 		}),
 	);

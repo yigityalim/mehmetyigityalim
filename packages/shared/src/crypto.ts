@@ -1,4 +1,4 @@
-import "server-only";
+import "db-only";
 
 export type Data =
 	| string

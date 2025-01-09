@@ -9,7 +9,7 @@ export default async function AppLayout({
 		<main className="w-full">
 			<div className="w-full container mx-auto">
 				<Header />
-				<div className="md:hidden h-[calc(50px+50px)]" />
+				<div className="h-[calc(50px+50px)] md:h-[calc(50px+60px)]" />
 				{children}
 			</div>
 			<Footer />

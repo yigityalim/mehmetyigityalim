@@ -1,20 +1,20 @@
-// scheduled-maintenance.service.ts
-import { db } from "@/server/db";
+// scheduled-maintenance.ts
+import { db } from "@/db/db";
 import {
 	type ScheduledMaintenanceInsert,
 	type ScheduledMaintenanceUpdateInsert,
 	maintenanceUpdate,
-	scheduledMaintenance,
-} from "@/server/schema";
+	scheduledMaintenance as scheduledMaintenanceSchema,
+} from "@/db/schema";
 import { and, eq, gte } from "drizzle-orm";
 import type { ServiceFunctionReturnType } from "./types";
 import { withErrorHandling } from "./utils";
 
 export type ScheduledMaintenanceServiceFunctionReturnType<
-	K extends keyof typeof scheduledMaintenanceService,
-> = ServiceFunctionReturnType<typeof scheduledMaintenanceService, K>;
+	K extends keyof typeof scheduledMaintenance,
+> = ServiceFunctionReturnType<typeof scheduledMaintenance, K>;
 
-export const scheduledMaintenanceService = {
+export const scheduledMaintenance = {
 	getScheduledMaintenance,
 	getScheduledMaintenanceUpdates,
 	listScheduledMaintenance,
@@ -35,7 +35,7 @@ export async function getScheduledMaintenance(id: string) {
 				updates: true,
 				component: true,
 			},
-			where: eq(scheduledMaintenance.id, id),
+			where: eq(scheduledMaintenanceSchema.id, id),
 		}),
 	);
 }
@@ -50,7 +50,7 @@ export async function getScheduledMaintenanceUpdates(id: string) {
 
 export async function listScheduledMaintenance() {
 	const now = new Date();
-	if (!((await db.$count(scheduledMaintenance)) > 0)) {
+	if (!((await db.$count(scheduledMaintenanceSchema)) > 0)) {
 		return [];
 	}
 	return withErrorHandling(() =>
@@ -59,7 +59,7 @@ export async function listScheduledMaintenance() {
 				updates: true,
 				component: true,
 			},
-			where: and(gte(scheduledMaintenance.scheduled_end_time, now)),
+			where: and(gte(scheduledMaintenanceSchema.scheduled_end_time, now)),
 		}),
 	);
 }
@@ -71,7 +71,7 @@ export async function createScheduledMaintenance(
 		async () =>
 			await db.transaction(async (tx) => {
 				const [insertedMaintenance] = await tx
-					.insert(scheduledMaintenance)
+					.insert(scheduledMaintenanceSchema)
 					.values({ ...data, created_at: new Date(), updated_at: new Date() })
 					.returning();
 
@@ -94,8 +94,8 @@ export async function createScheduledMaintenance(
 }
 
 export async function createUpdateForScheduledMaintenance(
-	maintenanceId: string,
 	data: Omit<ScheduledMaintenanceUpdateInsert, "id" | "maintenance_id">,
+	maintenanceId: string,
 ) {
 	if (!maintenanceId) {
 		throw new Error("Maintenance ID is required to create an update");
@@ -135,7 +135,7 @@ export async function createScheduledMaintenanceWithComponents(
 	componentIds: string[],
 ) {
 	const [insertedMaintenance] = await db
-		.insert(scheduledMaintenance)
+		.insert(scheduledMaintenanceSchema)
 		.values({ ...data, created_at: new Date(), updated_at: new Date() })
 		.returning();
 
@@ -146,13 +146,13 @@ export async function createScheduledMaintenanceWithComponents(
 }
 
 export async function updateScheduledMaintenance(
-	id: string,
 	data: Partial<ScheduledMaintenanceInsert>,
+	id: string,
 ) {
 	const [updatedMaintenance] = await db
-		.update(scheduledMaintenance)
+		.update(scheduledMaintenanceSchema)
 		.set({ ...data, updated_at: new Date() })
-		.where(eq(scheduledMaintenance.id, id))
+		.where(eq(scheduledMaintenanceSchema.id, id))
 		.returning();
 	return withErrorHandling(() => updatedMaintenance);
 }
@@ -163,17 +163,17 @@ export async function updateMaintenanceTime(
 	endTime: Date,
 ) {
 	const [updatedMaintenance] = await db
-		.update(scheduledMaintenance)
+		.update(scheduledMaintenanceSchema)
 		.set({ scheduled_start_time: startTime, scheduled_end_time: endTime })
-		.where(eq(scheduledMaintenance.id, id))
+		.where(eq(scheduledMaintenanceSchema.id, id))
 		.returning();
 	return withErrorHandling(() => updatedMaintenance);
 }
 
 export async function deleteScheduledMaintenance(id: string) {
 	const deletedMaintenance = await db
-		.delete(scheduledMaintenance)
-		.where(eq(scheduledMaintenance.id, id));
+		.delete(scheduledMaintenanceSchema)
+		.where(eq(scheduledMaintenanceSchema.id, id));
 	return withErrorHandling(() => deletedMaintenance);
 }
 
@@ -185,7 +185,7 @@ export async function deleteScheduledMaintenance(id: string) {
  */
 export async function isMaintenance() {
 	return withErrorHandling(
-		async () => await db.select().from(scheduledMaintenance),
+		async () => await db.select().from(scheduledMaintenanceSchema),
 		/*.where(
 					and(
 						gte(scheduledMaintenance.scheduled_start_time, new Date()), // bakım zamanı başlangıcı şu andan büyük olanları kontrol eder

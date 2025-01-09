@@ -1,4 +1,4 @@
-import type { IncidentSelect } from "@/server/schema";
+import type { IncidentSelect } from "@/db/schema";
 import { cn } from "@myy/ui/cn";
 
 const colors = (

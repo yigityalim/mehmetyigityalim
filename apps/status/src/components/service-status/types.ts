@@ -1,4 +1,4 @@
-import type { IncidentSelect } from "@/server/schema";
+import type { IncidentSelect } from "@/db/schema";
 
 export type DailyStatus = {
 	date: Date;

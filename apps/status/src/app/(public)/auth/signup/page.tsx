@@ -9,7 +9,7 @@ export default function SignupPage() {
 			<h3>Register Page</h3>
 			<Form
 				action={async (formData) => {
-					"use server";
+					"use db";
 					const email = formData.get("email") as string;
 					const password = formData.get("password") as string;
 

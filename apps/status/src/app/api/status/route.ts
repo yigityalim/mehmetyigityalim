@@ -1,5 +1,5 @@
 import { methodNotAllowed } from "@/lib/utils";
-import services from "@/server/services";
+import services from "@/db/services";
 import { type NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {

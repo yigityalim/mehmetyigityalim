@@ -34,7 +34,7 @@ yarn-error.log*
 
 # sqlite files
 *.sqlite
-sqlite.db
+*.db
 
 # vercel
 .vercel

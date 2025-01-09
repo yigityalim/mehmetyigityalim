@@ -1,7 +1,7 @@
 import { BackButton } from "@/components/back-button";
 import { Icons } from "@/components/icons";
 import { HoverCard } from "@/components/ui/hover-card";
-import { services } from "@/server/services";
+import { services } from "@/db/services";
 import { cn } from "@myy/ui/cn";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
@@ -44,14 +44,13 @@ export default async function IncidentDatetimePage({
 						)}
 					</div>
 					<div className="mt-3 font-medium text-sm text-[#70778C] dark:text-[#E2E4E9]/50">
-						Son güncelleme tarihi:{" "}
-						{format(
+						{`Son güncelleme tarihi: ${format(
 							new Date(incident.updated_at as Date),
 							"dd MMMM yyyy, HH:mm",
 							{
 								locale: tr,
 							},
-						)}
+						)}`}
 					</div>
 				</div>
 				<div className="px-8 py-4 flex flex-wrap items-center font-medium border-t whitespace-nowrap border-[#E2E4E9]/50 dark:border-[#21242D]">

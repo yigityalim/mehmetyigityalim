@@ -1,8 +1,8 @@
-import { componentGroupService as componentGroup } from "./component.group.service";
-import { componentService as component } from "./component.service";
-import { incidentService as incident } from "./incident.service";
-import { incidentUpdateService as incidentUpdate } from "./incident.update.service";
-import { scheduledMaintenanceService as scheduledMaintenance } from "./scheduled-maintenance.service";
+import { componentGroup as componentGroup } from "./component-group";
+import { component as component } from "./component";
+import { incident as incident } from "./incident";
+import { incidentUpdate as incidentUpdate } from "./incident-update";
+import { scheduledMaintenance as scheduledMaintenance } from "./scheduled-maintenance";
 import { utilsService } from "./utils";
 
 /**
@@ -36,11 +36,13 @@ export const services: IncidentService = {
 
 /**
  * Default export
+ *
  * @example
  * ```ts
  * import services from "./services";
  * const allIncidents = await services.incident.listIncidents(...);
  * ```
+ *
  */
 export default services;
 
@@ -55,8 +57,8 @@ export type IncidentService = {
 };
 export type IncidentUtils = typeof utilsService;
 
-export type * from "./scheduled-maintenance.service";
-export type * from "./incident.update.service";
-export type * from "./incident.service";
-export type * from "./component.group.service";
-export type * from "./component.service";
+export type * from "./scheduled-maintenance";
+export type * from "./incident-update";
+export type * from "./incident";
+export type * from "./component-group";
+export type * from "./component";

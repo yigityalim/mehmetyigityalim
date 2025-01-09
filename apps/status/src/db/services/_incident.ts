@@ -610,6 +610,9 @@ class IncidentService implements IIncidentService {
 export const incidentService = new IncidentService();
 
 // Types
+/**
+ * @deprecated This type will be removed in the next version
+ */
 export type IncidentServiceType = InstanceType<typeof IncidentService>;
 
 /**

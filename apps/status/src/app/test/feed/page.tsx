@@ -1,12 +1,12 @@
 import * as mock from "@/mocks/incident";
-import { services } from "@/server/services";
+import { services } from "@/db/services";
 import { Button } from "@myy/ui/button";
 import { addHours } from "date-fns";
 import Form from "next/form";
 
 export default async function FeedPage() {
 	async function generateMockData() {
-		"use server";
+		"use db";
 		const performance1 = performance.now();
 		try {
 			console.log("Generating mock data...");

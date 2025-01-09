@@ -1,11 +1,11 @@
-import services from "@/server/services";
+import services from "@/db/services";
 import { Button } from "@myy/ui/button";
 import { addDays } from "date-fns";
 import Form from "next/form";
 
 export default async function MaintenanceFeedPage() {
 	async function generateMaintenanceMockData() {
-		"use server";
+		"use db";
 		const performance1 = performance.now();
 
 		const now = new Date();

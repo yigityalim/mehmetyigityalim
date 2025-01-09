@@ -1,4 +1,4 @@
-import services from "@/server/services";
+import services from "@/db/services";
 import { buttonVariants } from "@myy/ui/button";
 import { cn } from "@myy/ui/cn";
 import { Plus } from "lucide-react";

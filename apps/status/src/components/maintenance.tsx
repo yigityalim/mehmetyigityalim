@@ -1,7 +1,7 @@
 "use client";
 
 import { maintenanceText } from "@/lib/status-utils";
-import type { ScheduledMaintenanceServiceFunctionReturnType } from "@/server/services";
+import type { ScheduledMaintenanceServiceFunctionReturnType } from "@/db/services";
 import { cn } from "@myy/ui/cn";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";

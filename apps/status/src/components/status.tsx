@@ -1,4 +1,4 @@
-import { services } from "@/server/services";
+import { services } from "@/db/services";
 
 import { Icons } from "@/components/icons";
 import { cn } from "@myy/ui/cn";
